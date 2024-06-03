@@ -6,7 +6,7 @@ import { ElMessage } from "element-plus";
 const request = axios.create({
   //基础路径
   //服务器地址
-  baseURL: "http://localhost:9011/",
+  baseURL: "http://localhost:8080/",
   timeout: 5000, //超时的时间的设置
 });
 //第二步:request实例添加请求与响应拦截器

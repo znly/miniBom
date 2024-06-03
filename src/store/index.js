@@ -5,6 +5,8 @@ export default createStore({
   state() {
     return {
       // 状态定义
+      language:'zh-cn',//全局语言
+      user:null,//存储用户信息
     };
   },
   mutations: {
