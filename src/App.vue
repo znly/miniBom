@@ -7,6 +7,7 @@
 </template>
 
 <script>
+import store from './store';
 
 
 export default {
@@ -14,7 +15,22 @@ export default {
   components: {
   },
   setup() {
+    //校验用户token
+    function checkToken(){
+      let token = localStorage.getItem("token");
+      if(token){
+        //调用api校验
+        
+        //校验成功后存入vuex
+        store.state.token = token;
 
+        //校验失败清除token
+        localStorage.removeItem('token');
+      }
+    }
+    return{
+      checkToken
+    }
   }
 }
 </script>

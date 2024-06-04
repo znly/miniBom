@@ -5,15 +5,35 @@ import { createRouter, createWebHistory } from "vue-router";
 const routes = [
   {
     path: "/",
-    name: "主页",
-    component: () => import("../views/Main.vue"),
-    meta: { title: "主页" },
+    name: "首页",
+    component: () => import("../views/Index.vue"),
+    meta: { title: "首页" },
   },
   {
     path: "/login",
     name: "登录",
     component: () => import("../views/user/Login.vue"),
     meta: { title: "用户登录" },
+  },
+  {
+    path: "/home",
+    name: "个人主页",
+    component: () => import("../views/user/Home.vue"),
+    meta: { title: "个人主页" },
+  },
+  {
+    path: "/main",
+    name: "管理系统主页",
+    component: () => import("../views/miniBom/Main"),
+    meta: { title: "miniBOM管理系统" },
+    children:[
+      {path: "part",
+      name: "部件管理",
+      component: () => import("../views/miniBom/Part/Part"),
+      meta: { title: "部件管理" },
+
+      }
+    ]
   },
   //404页面捕获
   {

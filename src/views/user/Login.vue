@@ -48,6 +48,7 @@ import { ElMessage } from 'element-plus'
 import userapi from '@/api/userapi'
 import router from '@/router'
 import store from '@/store'
+import encryption from '@/utils/Encryption'
 export default {
     name: 'login',
     mounted(){
@@ -80,8 +81,8 @@ export default {
                 ElMessage({ type: 'warning', message: '密码不能为空' });
                 return;
             }
-            //2.请求api获取数据
-            userapi.login(loginForm.username, loginForm.userpwd).then(res => {
+            //2.请求api获取数据 其中密码进行加密
+            userapi.login(loginForm.username,encryption.encryptdata(loginForm.userpwd)).then(res => {
                 // console.log(res);
                 if(res.code==200){
                     //登录成功提醒

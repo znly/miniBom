@@ -1,3 +1,4 @@
+//用户登录相关api
 import request from "./request";
 
 
@@ -11,5 +12,9 @@ export default {
         method:'Post',
         data:{name,password}
     })
-  }
+  },
+  //用户退出登录
+  logout(){
+    
+  },
 };
