@@ -26,14 +26,20 @@ const routes = [
     name: "管理系统主页",
     component: () => import("../views/miniBom/Main"),
     meta: { title: "miniBOM管理系统" },
-    children:[
-      {path: "part",
-      name: "部件管理",
-      component: () => import("../views/miniBom/Part/Part"),
-      meta: { title: "部件管理" },
-
-      }
-    ]
+    children: [
+      {
+        path: "part",
+        name: "部件管理",
+        component: () => import("../views/miniBom/Part/Part"),
+        meta: { title: "部件管理" },
+      },
+      {
+        path: "attribute",
+        name: "属性管理",
+        component: () => import("../views/miniBom/Attribute/Attribute"),
+        meta: { title: "属性管理" },
+      },
+    ],
   },
   //404页面捕获
   {

@@ -6,7 +6,7 @@
         </el-menu-item>
         <!-- <el-menu-item index="">首页</el-menu-item> -->
         <div style="position: absolute;right: 20px;">
-            <el-menu-item index="home">个人中心</el-menu-item>
+            <el-menu-item index="/home">个人中心</el-menu-item>
         </div>
     </el-menu>
 </template>
