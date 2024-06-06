@@ -94,7 +94,7 @@ export default {
                     //存入vuex
                     store.state.user = res.data;
                     //跳转主页
-                    router.push('/');
+                    router.push('/main');
                 }else{
                     ElMessage({type:'error',message:res.msg});
                 }

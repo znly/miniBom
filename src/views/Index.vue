@@ -6,7 +6,7 @@
       </el-header>
       <el-main style="--el-main-padding: 20px;">
         <div>
-          <h1>首页</h1>
+          <h1>欢迎使用</h1>
         </div>
       </el-main>
     </el-container>

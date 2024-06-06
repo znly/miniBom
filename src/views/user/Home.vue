@@ -70,10 +70,10 @@
                                 <el-icon>
                                     <Comment />
                                 </el-icon>
-                                上次登录时间
+                                最后更新日期
                             </div>
                         </template>
-                        {{ transformDate($store.state.user.lastUpdateTime) }}
+                        {{ dateUtil.transformDate($store.state.user.lastUpdateTime) }}
                     </el-descriptions-item>
                 </el-descriptions>
                 <div>
@@ -87,7 +87,7 @@
 <script>
 import store from '@/store';
 import { ElMessage } from 'element-plus';
-
+import dateUtil from '@/utils/DateUtil';
 export default {
 
     name: 'home',
@@ -95,19 +95,6 @@ export default {
     },
 
     setup() {
-
-        //转换时间戳为日期
-        function transformDate(value) {
-            if (!value) return '';
-            const date = new Date(value);
-            const year = date.getFullYear();
-            const month = (date.getMonth() + 1).toString().padStart(2, '0');
-            const day = date.getDate().toString().padStart(2, '0');
-            const hours = date.getHours().toString().padStart(2, '0');
-            const minutes = date.getMinutes().toString().padStart(2, '0');
-            const seconds = date.getSeconds().toString().padStart(2, '0');
-            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-        }
         //用户退出登录
         function logout(){
             //调用api退出登录
@@ -116,7 +103,7 @@ export default {
         }
 
         return {
-           transformDate,logout
+           logout,dateUtil
         }
     },
 
