@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>属性管理</h1>
+    <!-- <h1>属性管理</h1> -->
     <div style="margin-left: 20px;margin-right: 20px;">
       <!-- 顶部搜索栏 -->
       <div style="display: flex;align-items: center;justify-content: center;">
@@ -15,8 +15,9 @@
         </el-radio-group>
         <el-button type="primary" @click="pageQuery">查询</el-button>
       </div>
+
       <!-- 分类数据表格展示 -->
-      <div v-show="classList.data.length > 0">
+      <!-- <div v-show="classList.data.length > 0">
         <el-table :data="classList.data" style="width: 100%;margin-top: 10px;" empty-text="暂无相关数据" border
           ref="classTableRef">
           <el-table-column type="selection" width="55" />
@@ -49,7 +50,7 @@
             <template #default="scope">
               <el-button type="primary" :icon="Edit" circle
                 @click="editDialog = true, selectAttribute.data = scope.row" />
-              <el-popconfirm title="确认是否需要删除分类?" @confirm="deleteAttribute(scope.row)">
+              <el-popconfirm title="确认是否需要删除分类?" @confirm="deleteAttribute(scope.row, 'class')">
                 <template #reference>
                   <el-button type="danger" :icon="Delete" circle />
                 </template>
@@ -68,12 +69,12 @@
             :page-size="pageSize" v-model:current-page="curPage" :page-sizes="[10, 20, 30, 40]"
             @size-change="handleSizeChange" @current-change="handleCurrentChange" />
         </div>
-      </div>
+      </div> -->
 
       <!-- 属性数据表格展示 -->
-      <div v-show="attributeList.data.length > 0">
-        <el-table :data="attributeList.data" style="width: 100%;margin-top: 10px;" empty-text="暂无相关数据" border
-          @select="handleSelectionChange" ref="multipleTableRef">
+      <div v-show="tableList.data.length>0">
+        <el-table :data="tableList.data" style="width: 100%;margin-top: 10px;" empty-text="暂无相关数据" border
+          @select="handleSelectionChange" ref="multipleTableRef" height="500px">
           <el-table-column type="selection" width="55" />
           <el-table-column fixed prop="businessCode" label="编码" width="120" />
           <el-table-column prop="name" label="属性中文名称" width="120" />
@@ -91,9 +92,9 @@
               </span>
             </template>
           </el-table-column>
-          <el-table-column label="属性所在分类" width="120">
+          <el-table-column label="属性所在分类" width="120" :hidden="curType=='class'">
             <template #default="scope">
-              <el-button size="small" @click="showCategory(scope.$index, scope.row)">
+              <el-button size="small" @click="showCategory(scope.$index, scope.row)" :disabled="curType=='class'">
                 <el-icon>
                   <View />
                 </el-icon>
@@ -114,7 +115,7 @@
             <template #default="scope">
               <el-button type="primary" :icon="Edit" circle
                 @click="editDialog = true, selectAttribute.data = scope.row" />
-              <el-popconfirm title="确认是否需要删除属性?" @confirm="deleteAttribute(scope.row)">
+              <el-popconfirm :title="curType=='class'?'确认是否需要删除分类?':'确认是否需要删除属性?'" @confirm="deleteAttribute(scope.row, 'attribute')">
                 <template #reference>
                   <el-button type="danger" :icon="Delete" circle />
                 </template>
@@ -199,8 +200,8 @@
           <el-form-item label="数据类型" prop="type">
             <el-input v-model="selectAttribute.data.type" disabled />
           </el-form-item>
-          <el-form-item label="属性状态" prop="enableFlag">
-            <el-input v-model="selectAttribute.data.enableFlag" disabled />
+          <el-form-item label="属性状态" prop="disableFlag">
+            <el-input v-model="selectAttribute.data.disableFlag" disabled />
           </el-form-item>
           <el-form-item label="属性类型" prop="aType">
             <el-input v-model="selectAttribute.data.aType" disabled />
@@ -231,6 +232,12 @@ export default {
   name: 'attribute',
 
   setup() {
+    const tableList = reactive({
+      data: [],//数据
+      total: 0,//数据总数
+    })
+    //当前展示的是属性或者分类
+    const curType = ref('');
     //查询方式
     const findType = ref('attribute');
     //属性名称
@@ -344,6 +351,9 @@ export default {
         if (res.code == 200) {
           attributeList.data = res.data.resultList;
           attributeList.total = res.data.total;
+          tableList.data = res.data.resultList;
+          tableList.total = res.data.total;
+          curType.value = 'attribute';
         } else {
           ElMessage({ type: 'error', message: res.msg });
         }
@@ -357,6 +367,9 @@ export default {
         if (res.code == 200) {
           classList.data = res.data.resultList;
           classList.total = res.data.total;
+          tableList.data = res.data.resultList;
+          tableList.total = res.data.total;
+          curType.value = 'class';
         } else {
           ElMessage({ type: 'error', message: res.msg });
         }
@@ -398,8 +411,8 @@ export default {
 
     }
     //删除单个属性
-    function deleteAttribute(val) {
-      console.log('删除当前属性', val);
+    function deleteAttribute(val, type) {
+      console.log('删除当前属性', val, type);
       //调用api删除
 
     }
@@ -408,7 +421,7 @@ export default {
       attributeName, curPage, pageSize, pageQueryAttribute, attributeList, dateUtil, handleSelectionChange, selectList,
       handleSizeChange, handleCurrentChange, showCategory, findType, addDialog, attributeForm, formRules,
       addattribute, attributeFormRef, Edit, Delete, editAttribute, editDialog, selectAttribute, deleteAttribute, pageQuery,
-      className, classList
+      className, classList,tableList,curType
     }
   },
   created() {
