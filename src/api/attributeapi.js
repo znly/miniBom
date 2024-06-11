@@ -29,6 +29,16 @@ export default {
       },
     });
   },
+  //更新属性
+  updateAttr(id,type,description,descriptionEn){
+    return request({
+      url:'/idme/attribute/update',
+      method:'post',
+      data:{
+        id,type,description,descriptionEn
+      }
+    })
+  },
 
   //分页查询分类
   pageQueryClass(name,curPage,pageSize){
@@ -36,6 +46,13 @@ export default {
         url:'/idme/classification/page',
         method:'post',
         data:{name,curPage,pageSize}
+    })
+  },
+  //树状查询分类
+  treeQueryClass(){
+    return request({
+      url:'/idme/classification/tree',
+      method:'get'
     })
   }
 };

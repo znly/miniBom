@@ -131,7 +131,7 @@
         </div>
 
         <div style="display: flex;justify-content: center;margin-top: 10px;">
-          <el-pagination background layout="total, sizes, prev, pager, next, jumper" :total="attributeList.total"
+          <el-pagination background layout="total, sizes, prev, pager, next, jumper" :total="allList.total"
             :page-size="pageSize" v-model:current-page="curPage" :page-sizes="[10, 20, 30, 40]"
             @size-change="handleSizeChange" @current-change="handleCurrentChange" />
         </div>
@@ -232,7 +232,13 @@ export default {
   name: 'attribute',
 
   setup() {
+    //存储表格数据
     const tableList = reactive({
+      data: [],//数据
+      total: 0,//数据总数
+    })
+    //存储所有数据
+    const allList = reactive({
       data: [],//数据
       total: 0,//数据总数
     })
@@ -349,11 +355,13 @@ export default {
       attributeapi.pageQueryAttribute(attributeName.value, curPage.value, pageSize.value).then(res => {
         // console.log(res);
         if (res.code == 200) {
-          attributeList.data = res.data.resultList;
-          attributeList.total = res.data.total;
+          // attributeList.data = res.data.resultList;
+          // attributeList.total = res.data.total;
           tableList.data = res.data.resultList;
           tableList.total = res.data.total;
           curType.value = 'attribute';
+          allList.data = res.data.resultList;
+          allList.total = res.data.total;
         } else {
           ElMessage({ type: 'error', message: res.msg });
         }
@@ -363,13 +371,15 @@ export default {
     //分页查询分类
     function pageQueryClass() {
       attributeapi.pageQueryClass(className.value, curPage.value, pageSize.value).then(res => {
-        console.log(res);
+        // console.log(res);
         if (res.code == 200) {
-          classList.data = res.data.resultList;
-          classList.total = res.data.total;
+          // classList.data = res.data.resultList;
+          // classList.total = res.data.total;
           tableList.data = res.data.resultList;
           tableList.total = res.data.total;
           curType.value = 'class';
+          allList.data = res.data.resultList;
+          allList.total = res.data.total;
         } else {
           ElMessage({ type: 'error', message: res.msg });
         }
@@ -396,10 +406,6 @@ export default {
     function handleSizeChange(val) {
       pageSize.value = val;
     }
-    //跳转页数
-    function handleCurrentChange(val) {
-      curPage.value = val;
-    }
     //展示属性分类
     function showCategory(index, row) {
       // console.log(index, row);
@@ -407,7 +413,22 @@ export default {
     //编辑属性
     function editAttribute() {
       //调用api修改
-
+      // console.log('当前选择的属性',selectAttribute.data);
+      attributeapi.updateAttr(selectAttribute.data.id,selectAttribute.data.type,selectAttribute.data.description,
+      selectAttribute.data.descriptionEn
+      ).then(res=>{
+        if(res.code==200){
+          ElMessage({type:'success',message:'修改成功'});
+          //关闭修改弹窗
+          editDialog.value = false;
+          //可以刷新页面重新获取数据但没必要
+          // setTimeout(() => {
+          //   location.reload();
+          // }, 500);
+        }else {
+          ElMessage({ type: 'error', message: res.msg });
+        }
+      })
 
     }
     //删除单个属性
@@ -417,11 +438,18 @@ export default {
 
     }
 
+    // 前端分页-切割数据
+    //处理当前页面页数变化
+    function handleCurrentChange(val) {
+      curPage.value = val;
+      pageQueryAttribute();
+    }
+
     return {
       attributeName, curPage, pageSize, pageQueryAttribute, attributeList, dateUtil, handleSelectionChange, selectList,
       handleSizeChange, handleCurrentChange, showCategory, findType, addDialog, attributeForm, formRules,
       addattribute, attributeFormRef, Edit, Delete, editAttribute, editDialog, selectAttribute, deleteAttribute, pageQuery,
-      className, classList,tableList,curType
+      className, classList,tableList,curType,allList
     }
   },
   created() {
@@ -436,4 +464,6 @@ export default {
 }
 </script>
 
-<style></style>
+<style>
+
+</style>

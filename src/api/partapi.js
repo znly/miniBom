@@ -16,7 +16,7 @@ export default{
             url:'/createPart',
             method:'post',
             data:{
-
+                
             }
         })
     },

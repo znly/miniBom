@@ -9,14 +9,13 @@
             <el-input placeholder="请输入关键词" style="width: 300px;" v-model="partId" :disabled="findType != 'id'" />
           </el-radio>
           <el-radio value="name">按部件名称查询
-            <el-input placeholder="请输入关键词" style="width: 300px;" v-model="partName"
-              :disabled="findType != 'name'" />
+            <el-input placeholder="请输入关键词" style="width: 300px;" v-model="partName" :disabled="findType != 'name'" />
           </el-radio>
         </el-radio-group>
         <el-button type="primary" @click="getPartList">查询</el-button>
       </div>
       <!-- 数据表格展示 -->
-      <div v-show="partList.data.length> 0">
+      <div v-show="partList.data.length > 0">
         <el-table :data="partList.data" style="width: 100%;margin-top: 10px;" empty-text="暂无相关数据" border
           @select="handleSelectionChange" ref="multipleTableRef" height="500px">
           <el-table-column type="selection" width="55" />
@@ -35,7 +34,7 @@
                 有效
               </span>
             </template>
-          </el-table-column> -->
+</el-table-column> -->
 
           <el-table-column label="创建时间" width="200">
             <template #default="scope">
@@ -48,12 +47,10 @@
             </template>
           </el-table-column>
 
-          <el-table-column fixed="right" label="操作" >
+          <el-table-column fixed="right" label="操作">
             <template #default="scope">
-              <el-button type="primary" :icon="Edit" circle
-                @click="editDialog = true" />
-              <el-popconfirm title="是否确定删除该部件"
-                @confirm="deleteAttribute(scope.row, 'attribute')">
+              <el-button type="primary" :icon="Edit" circle @click="editDialog = true" />
+              <el-popconfirm title="是否确定删除该部件" @confirm="deleteAttribute(scope.row, 'attribute')">
                 <template #reference>
                   <el-button type="danger" :icon="Delete" circle />
                 </template>
@@ -77,10 +74,11 @@
 
 
         <!-- 创建部件表单弹窗 -->
-        <el-dialog v-model="addDialog" title="添加部件" draggable>
+        <el-dialog v-model="addDialog" title="添加部件" draggable style="margin-top: 20px;">
           <div>
-            <el-form ref="partFormRef" style="max-width: 500px" :model="partForm" :rules="formRules"
-              label-width="auto" class="demo-ruleForm" status-icon>
+            <el-form ref="partFormRef" style="max-width: 500px" :model="partForm" :rules="formRules" label-width="auto"
+              class="demo-ruleForm" status-icon>
+              <el-form-item label="基本属性" style="font-weight: bolder;" />
               <el-form-item label="产品">
                 <span>笔记本电脑</span>
               </el-form-item>
@@ -88,16 +86,43 @@
                 <el-input v-model="partForm.name" />
               </el-form-item>
               <el-form-item label="默认单位" prop="deafultUnit">
-                <el-input v-model="partForm.defaultUnit" />
+                <el-select v-model="partForm.defaultUnit" placeholder="请选择默认单位" style="width: 240px">
+                  <el-option v-for="(item, key) in options" :key="key" :label="item" :value="item" />
+                </el-select>
               </el-form-item>
               <el-form-item label="来源" prop="source">
-                <el-input v-model="partForm.source" />
+                <!-- <el-input v-model="partForm.source" /> -->
+                <el-select v-model="partForm.source" placeholder="请选择来源" style="width: 240px">
+                  <el-option v-for="(item, key) in sourceOptions" :key="key" :label="item" :value="item" />
+                </el-select>
               </el-form-item>
-              <el-form-item label="装配模式" prop="mode">
-                <el-input v-model="partForm.mode" />
+              <el-form-item label="装配模式" prop="pattern">
+                <!-- <el-input v-model="partForm.pattern" /> -->
+                <el-select v-model="partForm.pattern" placeholder="请选择装配模式" style="width: 240px">
+                  <el-option v-for="(item, key) in patternOptions" :key="key" :label="item" :value="item" />
+                </el-select>
               </el-form-item>
               <el-form-item label="分类" prop="type">
-                <el-input v-model="partForm.type" />
+                <!-- <el-input v-model="partForm.type" /> -->
+                <el-tree-select v-model="partForm.type" :data="typeOptions.data" render-after-expand="false" accordion
+                :props="treeProps"  style="width: 240px"  @node-click="nodeClickFun" placeholder="请选择分类">
+                  <template #default="{ data: { name } }">
+                    {{ name }}
+                    <!-- <span style="color: gray">(suffix)</span> -->
+                  </template>
+                </el-tree-select>
+              </el-form-item>
+
+              <el-form-item label="扩展属性" style="font-weight: bolder;" />
+
+              <el-form-item label="分类代码">
+                <el-input v-model="partForm.businessCode" disabled/>
+              </el-form-item>
+              <el-form-item label="品牌">
+                <el-input v-model="partForm.brand" disabled />
+              </el-form-item>
+              <el-form-item label="型号">
+                <el-input v-model="partForm.mode" disabled/>
               </el-form-item>
             </el-form>
           </div>
@@ -120,9 +145,32 @@ import {
   Delete,
   Edit,
 } from '@element-plus/icons-vue'
+import attributeapi from '@/api/attributeapi';
 export default {
   name: 'part',
   setup() {
+    const options = reactive([
+      'PCS', 'SITE', 'SET', 'M', 'EACH', 'HOP', 'M*M', 'TRP', 'MON', 'KG'
+    ])
+
+    //分类选项
+    const typeOptions = reactive({
+      data: []
+    })
+    //来源选项
+    const sourceOptions = reactive([
+      '制造','购买','购买-单一供应源'
+    ])
+    //装配模式选项
+    const patternOptions = reactive([
+      '可分离','不可分离','零件'
+    ])
+
+    const treeProps = reactive({
+      value:'name',
+      label:'name',
+      children:'children'
+    })
 
     //添加部件弹窗
     const addDialog = ref(false);
@@ -131,11 +179,14 @@ export default {
     //添加部件表单
     const partForm = reactive({
       //名称，默认单位，装配模式，来源，分类
-      name:'',
-      defaultUnit:'',
-      source:'',
-      mode:'',
-      type:'',
+      name: '',
+      defaultUnit: 'PCS',//默认单位
+      source: '', //来源
+      pattern: '',//装配模式
+      type: '', //分类
+      businessCode:'',//分类代码
+      brand:'',//品牌
+      mode:'',//型号
     })
 
     //表单校验
@@ -145,19 +196,19 @@ export default {
         { min: 1, max: 250, message: 'Length should be 1 to 250', trigger: 'blur' },
       ],
       defaultUnit: [
-        { required: true, message: '请输入默认单位', trigger: 'blur' },
+        { required: true, message: '请选择默认单位', trigger: 'blur' },
         { min: 1, max: 250, message: 'Length should be 1 to 250', trigger: 'blur' },
       ],
       source: [
-        { required: true, message: '请输入来源', trigger: 'blur' },
+        { required: true, message: '请选择来源', trigger: 'blur' },
         { min: 1, max: 250, message: 'Length should be 1 to 250', trigger: 'blur' },
       ],
-      mode: [
-        { required: true, message: '请输入装配模式', trigger: 'blur' },
+      pattern: [
+        { required: true, message: '请选择装配模式', trigger: 'blur' },
         { min: 1, max: 250, message: 'Length should be 1 to 250', trigger: 'blur' },
       ],
       type: [
-        { required: true, message: '请输入分类', trigger: 'blur' },
+        { required: true, message: '请选择分类', trigger: 'blur' },
         { min: 1, max: 250, message: 'Length should be 1 to 250', trigger: 'blur' },
       ],
       enableFlag: [
@@ -170,15 +221,50 @@ export default {
       ],
     }
 
-    //添加部件方法
-    function addPart() {
+    //点击选择分类
+    function nodeClickFun(val){
+      // console.log('点击',val);
+      partForm.businessCode = val.businessCode;
+      partForm.brand = val.name;
+      partForm.mode = val.name;
+    }
 
+     // TODO 表单整体校验 + 登录
+     const partFormRef = ref(null);
+
+    //添加部件方法
+    const addPart = ()=>{
+      console.log(partFormRef);
+      //表单校验
+      partFormRef.value.validate((valid) => {
+        if(valid){
+          //调用api创建
+
+          console.log('校验通过');
+        }else{
+          ElMessage({type:'warning',message:'请按规定填写表单'});
+        }
+      })
       //表单置空
     }
+    //获取分类
+    function getType() {
+      attributeapi.treeQueryClass().then(res => {
+        console.log(res);
+        if (res.code == 200) {
+          typeOptions.data = res.data;
+        } else {
+          ElMessage({ type: 'error', message: res.msg });
+        }
+
+      })
+    }
+
+
 
     //查询类型 默认id编码
     const findType = ref('id');
-    
+
     //部件编码
     const partId = ref('');
     //部件名称
@@ -195,24 +281,30 @@ export default {
     })
     //获取部件列表数据
     function getPartList() {
-        partapi.queryPart(partId.value,curPage.value,pageSize.value).then(res=>{
-          console.log(res);
-          if(res.code==200){
-            partList.data = res.data.resList;
-            partList.total = res.data.size;
-          }else{
-            ElMessage({type:'error',message:res.msg});
-          }
-        })
+      partapi.queryPart(partId.value, curPage.value, pageSize.value).then(res => {
+        // console.log(res);
+        if (res.code == 200) {
+          partList.data = res.data.resList;
+          partList.total = res.data.size;
+        } else {
+          ElMessage({ type: 'error', message: res.msg });
+        }
+      })
     }
 
     return {
-      addDialog, partForm, addPart, partList, getPartList,findType,partId,partName,dateUtil
-      ,curPage,pageSize,Delete,Edit,editDialog,formRules
+      addDialog, partForm, addPart, partList, getPartList, findType, partId, partName, dateUtil
+      , curPage, pageSize, Delete, Edit, editDialog, formRules, options, typeOptions, getType,treeProps,
+      nodeClickFun,partFormRef,sourceOptions,patternOptions
     }
+  },
+  mounted() {
+    this.getType();
   }
 
 }
 </script>
 
-<style></style>
+<style>
+
+</style>
