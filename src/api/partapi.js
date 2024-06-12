@@ -40,9 +40,35 @@ export default {
   //获取部件的所有版本
   allVersion(masterId, version, curPage, pageSize) {
     return request({
-      url: "/idme/part/versions",
+      url: "/idme/part/allversions",
       method: "post",
       data: { masterId, version, curPage, pageSize },
     });
   },
+
+  //获取Part对应版本信息
+  version(masterId,version){
+    return request({
+      url:'/idme/part/version',
+      method:'post',
+      data:{masterId,version}
+    })
+  },
+
+  //删除小版本 传入id和版本号
+  delVersion(masterId,version){
+    return request({
+      url:'/idme/part/delbranch',
+      method:'post',
+      data:{masterId,version}
+    })
+  },
+
+  //修订part
+  revisePart(masterId){
+    return request({
+      url:'/idme/part/revise/'+masterId,
+      method:'post',
+    })
+  }
 };

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <!-- <h1>属性管理</h1> -->
+    <h1>属性管理</h1>
     <div style="margin-left: 20px;margin-right: 20px;">
       <!-- 顶部搜索栏 -->
       <div style="display: flex;align-items: center;justify-content: center;">
@@ -35,44 +35,44 @@
                 有效
               </span>
             </template>
-          </el-table-column>
-          <el-table-column label="创建时间" width="200">
-            <template #default="scope">
+</el-table-column>
+<el-table-column label="创建时间" width="200">
+  <template #default="scope">
               {{ dateUtil.transformDate(scope.row.createTime) }}
             </template>
-          </el-table-column>
-          <el-table-column label="更新时间" width="200">
-            <template #default="scope">
+</el-table-column>
+<el-table-column label="更新时间" width="200">
+  <template #default="scope">
               {{ dateUtil.transformDate(scope.row.lastUpdateTime) }}
             </template>
-          </el-table-column>
-          <el-table-column fixed="right" label="操作" width="120">
-            <template #default="scope">
+</el-table-column>
+<el-table-column fixed="right" label="操作" width="120">
+  <template #default="scope">
               <el-button type="primary" :icon="Edit" circle
                 @click="editDialog = true, selectAttribute.data = scope.row" />
               <el-popconfirm title="确认是否需要删除分类?" @confirm="deleteAttribute(scope.row, 'class')">
                 <template #reference>
                   <el-button type="danger" :icon="Delete" circle />
                 </template>
-              </el-popconfirm>
-            </template>
-          </el-table-column>
-        </el-table>
-        <div style="margin-top: 10px;">
-          <el-button type="primary" @click="addDialog = true">添加分类</el-button>
-          <el-button type="primary" @click="clearSelection">清除选择</el-button>
-          <el-button type="danger">批量删除</el-button>
-        </div>
+  </el-popconfirm>
+  </template>
+</el-table-column>
+</el-table>
+<div style="margin-top: 10px;">
+  <el-button type="primary" @click="addDialog = true">添加分类</el-button>
+  <el-button type="primary" @click="clearSelection">清除选择</el-button>
+  <el-button type="danger">批量删除</el-button>
+</div>
 
-        <div style="display: flex;justify-content: center;margin-top: 10px;">
-          <el-pagination background layout="total, sizes, prev, pager, next, jumper" :total="classList.total"
-            :page-size="pageSize" v-model:current-page="curPage" :page-sizes="[10, 20, 30, 40]"
-            @size-change="handleSizeChange" @current-change="handleCurrentChange" />
-        </div>
-      </div> -->
+<div style="display: flex;justify-content: center;margin-top: 10px;">
+  <el-pagination background layout="total, sizes, prev, pager, next, jumper" :total="classList.total"
+    :page-size="pageSize" v-model:current-page="curPage" :page-sizes="[10, 20, 30, 40]" @size-change="handleSizeChange"
+    @current-change="handleCurrentChange" />
+</div>
+</div> -->
 
       <!-- 属性数据表格展示 -->
-      <div v-show="tableList.data.length>0">
+      <div v-show="tableList.data.length > 0">
         <el-table :data="tableList.data" style="width: 100%;margin-top: 10px;" empty-text="暂无相关数据" border
           @select="handleSelectionChange" ref="multipleTableRef" height="500px">
           <el-table-column type="selection" width="55" />
@@ -92,9 +92,9 @@
               </span>
             </template>
           </el-table-column>
-          <el-table-column label="属性所在分类" width="120" :hidden="curType=='class'">
+          <el-table-column label="属性所在分类" width="120" :hidden="curType == 'class'">
             <template #default="scope">
-              <el-button size="small" @click="showCategory(scope.$index, scope.row)" :disabled="curType=='class'">
+              <el-button size="small" @click="showCategory(scope.$index, scope.row)" :disabled="curType == 'class'">
                 <el-icon>
                   <View />
                 </el-icon>
@@ -115,7 +115,8 @@
             <template #default="scope">
               <el-button type="primary" :icon="Edit" circle
                 @click="editDialog = true, selectAttribute.data = scope.row" />
-              <el-popconfirm :title="curType=='class'?'确认是否需要删除分类?':'确认是否需要删除属性?'" @confirm="deleteAttribute(scope.row, 'attribute')">
+              <el-popconfirm :title="curType == 'class' ? '确认是否需要删除分类?' : '确认是否需要删除属性?'"
+                @confirm="deleteAttribute(scope.row, 'attribute')">
                 <template #reference>
                   <el-button type="danger" :icon="Delete" circle />
                 </template>
@@ -131,7 +132,7 @@
         </div>
 
         <div style="display: flex;justify-content: center;margin-top: 10px;">
-          <el-pagination background layout="total, sizes, prev, pager, next, jumper" :total="allList.total"
+          <el-pagination background layout="total, sizes, prev, pager, next, jumper" :total="tableList.total"
             :page-size="pageSize" v-model:current-page="curPage" :page-sizes="[10, 20, 30, 40]"
             @size-change="handleSizeChange" @current-change="handleCurrentChange" />
         </div>
@@ -360,8 +361,6 @@ export default {
           tableList.data = res.data.resultList;
           tableList.total = res.data.total;
           curType.value = 'attribute';
-          allList.data = res.data.resultList;
-          allList.total = res.data.total;
         } else {
           ElMessage({ type: 'error', message: res.msg });
         }
@@ -373,13 +372,9 @@ export default {
       attributeapi.pageQueryClass(className.value, curPage.value, pageSize.value).then(res => {
         // console.log(res);
         if (res.code == 200) {
-          // classList.data = res.data.resultList;
-          // classList.total = res.data.total;
           tableList.data = res.data.resultList;
           tableList.total = res.data.total;
           curType.value = 'class';
-          allList.data = res.data.resultList;
-          allList.total = res.data.total;
         } else {
           ElMessage({ type: 'error', message: res.msg });
         }
@@ -414,27 +409,46 @@ export default {
     function editAttribute() {
       //调用api修改
       // console.log('当前选择的属性',selectAttribute.data);
-      attributeapi.updateAttr(selectAttribute.data.id,selectAttribute.data.type,selectAttribute.data.description,
-      selectAttribute.data.descriptionEn
-      ).then(res=>{
-        if(res.code==200){
-          ElMessage({type:'success',message:'修改成功'});
+      attributeapi.updateAttr(selectAttribute.data.id, selectAttribute.data.type, selectAttribute.data.description,
+        selectAttribute.data.descriptionEn
+      ).then(res => {
+        if (res.code == 200) {
+          ElMessage({ type: 'success', message: '修改成功' });
           //关闭修改弹窗
           editDialog.value = false;
           //可以刷新页面重新获取数据但没必要
           // setTimeout(() => {
           //   location.reload();
           // }, 500);
-        }else {
+        } else {
           ElMessage({ type: 'error', message: res.msg });
         }
       })
-
     }
-    //删除单个属性
+
+    //删除单个属性 传入的是值、类型
     function deleteAttribute(val, type) {
-      console.log('删除当前属性', val, type);
-      //调用api删除
+      //删除属性
+      if (type == 'attribute') {
+        attributeapi.deleteAttr(val.id).then(res => {
+          console.log(res);
+          if (res.code == 200) {
+            ElMessage({ type: 'success', message: '删除成功' });
+            //刷新页面
+            setTimeout(() => {
+              location.reload();
+            }, 500);
+          } else {
+            ElMessage({ type: 'error', message: res.msg });
+          }
+        })
+      }
+      //删除分类
+      else{
+
+      }
+
+
 
     }
 
@@ -442,14 +456,20 @@ export default {
     //处理当前页面页数变化
     function handleCurrentChange(val) {
       curPage.value = val;
-      pageQueryAttribute();
+      //根据类型查询不同的
+      if(curType.value=='attribute'){
+        pageQueryAttribute();
+      }else{
+        pageQueryClass();
+      }
+      
     }
 
     return {
       attributeName, curPage, pageSize, pageQueryAttribute, attributeList, dateUtil, handleSelectionChange, selectList,
       handleSizeChange, handleCurrentChange, showCategory, findType, addDialog, attributeForm, formRules,
       addattribute, attributeFormRef, Edit, Delete, editAttribute, editDialog, selectAttribute, deleteAttribute, pageQuery,
-      className, classList,tableList,curType,allList
+      className, classList, tableList, curType, allList
     }
   },
   created() {
@@ -464,6 +484,4 @@ export default {
 }
 </script>
 
-<style>
-
-</style>
+<style></style>

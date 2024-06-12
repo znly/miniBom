@@ -40,6 +40,14 @@ export default {
     })
   },
 
+  //删除属性
+  deleteAttr(id){
+    return request({
+      url:'/idme/attribute/delete/'+id,
+      method:'delete'
+    })
+  },
+
   //分页查询分类
   pageQueryClass(name,curPage,pageSize){
     return request({

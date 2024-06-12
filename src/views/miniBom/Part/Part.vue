@@ -21,7 +21,11 @@
           <el-table-column type="selection" width="55" />
           <el-table-column fixed prop="id" label="编码" width="120" />
           <el-table-column prop="name" label="部件名称" width="120" />
-          <el-table-column prop="versionCode" label="版本号" width="120" />
+          <el-table-column  label="版本号" width="120">
+            <template #default="scope">
+                  <span>{{ scope.row.version }}.{{ scope.row.iteration }}</span>
+                </template>
+          </el-table-column>
           <el-table-column prop="iteration" label="迭代版本号" width="120" />
           <el-table-column prop="description" label="描述" width="120" />
           <el-table-column prop="" label="分类编码" width="120" />
@@ -63,7 +67,7 @@
 
 
         <!-- 创建部件表单弹窗 -->
-        <el-dialog v-model="addDialog" title="添加部件" draggable style="margin-top: 20px;">
+        <el-dialog v-model="addDialog" title="添加部件" draggable style="margin-top: 20px;" @closed="showMode='basic'">
           <div>
             <el-radio-group v-model="showMode" size="large">
               <el-radio-button label="基本属性" value="basic" />
@@ -127,7 +131,7 @@
 
           <!-- 版本管理 -->
           <div v-show="showMode == 'version'">
-            <el-table :data="partVersionList">
+            <el-table :data="partVersionList.data">
               <el-table-column label="编码" />
             </el-table>
           </div>
@@ -138,7 +142,7 @@
         </el-dialog>
 
         <!-- 编辑部件弹窗 -->
-        <el-dialog v-model="editDialog" title="编辑部件" draggable style="margin-top: 20px;">
+        <el-dialog v-model="editDialog" title="编辑部件" draggable style="margin-top: 20px;" @closed="showMode='basic'">
           <div>
             <el-radio-group v-model="showMode" size="large">
               <el-radio-button label="基本属性" value="basic" />
@@ -199,7 +203,21 @@
           <div v-show="showMode=='version'">
             <el-table :data="partVersionList.data">
               <el-table-column label="编码" prop="id"/>
-              <el-table-column label="版本号" prop="version"/>
+              <el-table-column label="版本号" prop="version">
+                <template #default="scope">
+                  <span>{{ scope.row.version }}.{{ scope.row.iteration }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column label="名称" prop="name"/>
+              <el-table-column fixed="right" label="操作">
+            <template #default="scope">
+              <el-popconfirm title="是否确定删除当前小版本" @confirm="deleteVersion(scope.row)">
+                <template #reference>
+                  <el-button type="danger" :icon="Delete" circle />
+                </template>
+              </el-popconfirm>
+            </template>
+          </el-table-column>
             </el-table>
           </div>
 
@@ -369,7 +387,7 @@ export default {
     //获取部件列表数据
     function getPartList() {
       partapi.queryPart(partId.value, curPage.value, pageSize.value).then(res => {
-        console.log(res);
+        // console.log(res);
         if (res.code == 200) {
           partList.data = res.data.resList;
           partList.total = res.data.size;
@@ -382,19 +400,6 @@ export default {
     //编辑部件信息
     function editPart() {
 
-    }
-
-    //获取部件所有版本
-    function allVerison() {
-      partapi.allVersion('0', '', 1, 10).then(res => {
-        // console.log(res);
-        if(res.code==200){
-
-          // partVersionList.data = res.data;
-        }else{
-          ElMessage({type:'error',message:res.msg});
-        }
-      })
     }
 
     // 前端分页-切割数据
@@ -411,23 +416,33 @@ export default {
 
     //获取版本管理列表
     function getVersionList(){
-      partapi.allVersion(editPartForm.data.id,'',1,100).then(res=>{
-        console.log(res);
-        partVersionList.data = res.data;
+      // console.log('当前选中部件',editPartForm.data);
+      //获取当前部件的所有版本 一次查询10000条,问就是懒得做分页
+      partapi.allVersion(editPartForm.data.master.id,'',1,10000).then(res=>{
+        if(res.code==200){
+          partVersionList.data = res.data;
+        }else{
+          ElMessage({type:'error',message:res.msg});
+        }
       })
+    }
+    //删除小版本
+    function deleteVersion(val){
+      console.log('当前版本信息',val);
+      //调用api删除
+
     }
 
     return {
       addDialog, partForm, addPart, partList, getPartList, findType, partId, partName, dateUtil
       , curPage, pageSize, Delete, Edit, editDialog, formRules, options, typeOptions, getType, treeProps,
       nodeClickFun, partFormRef, sourceOptions, patternOptions, handleCurrentChange, editPart, editPartForm,
-      showMode, partVersionList, allVerison,getVersionList
+      showMode, partVersionList,getVersionList,deleteVersion
     }
   },
   mounted() {
     this.getType();
     //获取所有版本列表
-    // this.allVerison();
   }
 
 }

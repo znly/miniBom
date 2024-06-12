@@ -18,7 +18,7 @@
             </el-menu-item>
 
 
-            <el-sub-menu index="fenlei">
+            <!-- <el-sub-menu index="fenlei">
                 <template #title>
                     <el-icon>
                         <Grid />
@@ -56,7 +56,7 @@
                     <template #title>item four</template>
                     <el-menu-item index="1-4-1">item one</el-menu-item>
                 </el-sub-menu>
-            </el-sub-menu>
+            </el-sub-menu> -->
 
             <el-menu-item index="/main/part">
                 <template #title>
