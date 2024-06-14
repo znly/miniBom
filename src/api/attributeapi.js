@@ -62,5 +62,14 @@ export default {
       url:'/idme/classification/tree',
       method:'get'
     })
-  }
+  },
+  //删除分类
+
+
+  //获取分类详细信息
+  getNodeAttr(id){
+    return request({
+      url:'/idme/classification/getAttr/'+id
+    })
+  },
 };

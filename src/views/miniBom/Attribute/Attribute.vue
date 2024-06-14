@@ -16,68 +16,34 @@
         <el-button type="primary" @click="pageQuery">查询</el-button>
       </div>
 
-      <!-- 分类数据表格展示 -->
-      <!-- <div v-show="classList.data.length > 0">
-        <el-table :data="classList.data" style="width: 100%;margin-top: 10px;" empty-text="暂无相关数据" border
-          ref="classTableRef">
-          <el-table-column type="selection" width="55" />
-          <el-table-column fixed prop="businessCode" label="编码" width="120" />
-          <el-table-column prop="name" label="属性中文名称" width="120" />
-          <el-table-column prop="nameEn" label="属性英文名称" width="120" />
-          <el-table-column prop="description" label="中文描述" width="120" />
-          <el-table-column prop="descriptionEn" label="英文描述" width="120" />
-          <el-table-column prop="disableFlag" label="是否有效" width="100">
-            <template #default="scope">
-              <span v-if="scope.row.disableFlag == true">
-                失效
-              </span>
-              <span v-else>
-                有效
-              </span>
-            </template>
-</el-table-column>
-<el-table-column label="创建时间" width="200">
-  <template #default="scope">
-              {{ dateUtil.transformDate(scope.row.createTime) }}
-            </template>
-</el-table-column>
-<el-table-column label="更新时间" width="200">
-  <template #default="scope">
-              {{ dateUtil.transformDate(scope.row.lastUpdateTime) }}
-            </template>
-</el-table-column>
-<el-table-column fixed="right" label="操作" width="120">
-  <template #default="scope">
-              <el-button type="primary" :icon="Edit" circle
-                @click="editDialog = true, selectAttribute.data = scope.row" />
-              <el-popconfirm title="确认是否需要删除分类?" @confirm="deleteAttribute(scope.row, 'class')">
-                <template #reference>
-                  <el-button type="danger" :icon="Delete" circle />
-                </template>
-  </el-popconfirm>
-  </template>
-</el-table-column>
-</el-table>
-<div style="margin-top: 10px;">
-  <el-button type="primary" @click="addDialog = true">添加分类</el-button>
-  <el-button type="primary" @click="clearSelection">清除选择</el-button>
-  <el-button type="danger">批量删除</el-button>
-</div>
-
-<div style="display: flex;justify-content: center;margin-top: 10px;">
-  <el-pagination background layout="total, sizes, prev, pager, next, jumper" :total="classList.total"
-    :page-size="pageSize" v-model:current-page="curPage" :page-sizes="[10, 20, 30, 40]" @size-change="handleSizeChange"
-    @current-change="handleCurrentChange" />
-</div>
-</div> -->
-
       <!-- 属性数据表格展示 -->
-      <div v-show="tableList.data.length > 0">
+      <div>
         <el-table :data="tableList.data" style="width: 100%;margin-top: 10px;" empty-text="暂无相关数据" border
           @select="handleSelectionChange" ref="multipleTableRef" height="500px">
           <el-table-column type="selection" width="55" />
-          <el-table-column fixed prop="businessCode" label="编码" width="120" />
-          <el-table-column prop="name" label="属性中文名称" width="120" />
+
+          <el-table-column fixed prop="businessCode" :label="findType == 'attribute' ? '编码' : '分类码'" width="120">
+            <template #default="scope">
+              <span v-if="scope.row.className == 'ClassificationNode'" style="cursor: pointer;color:royalblue"
+                @click="showClassInfo(scope.row)">
+                {{ scope.row.businessCode }}
+              </span>
+              <span v-else>
+                {{ scope.row.businessCode }}
+              </span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="name" label="属性中文名称" width="120">
+            <template #default="scope">
+              <span v-if="scope.row.className == 'ClassificationNode'" style="cursor: pointer;color:royalblue"
+                @click="showClassInfo(scope.row)">
+                {{ scope.row.name }}
+              </span>
+              <span v-else>
+                {{ scope.row.name }}
+              </span>
+            </template>
+          </el-table-column>
           <el-table-column prop="nameEn" label="属性英文名称" width="120" />
           <el-table-column prop="description" label="中文描述" width="120" />
           <el-table-column prop="descriptionEn" label="英文描述" width="120" />
@@ -126,16 +92,18 @@
         </el-table>
 
         <div style="margin-top: 10px;">
-          <el-button type="primary" @click="addDialog = true">添加属性</el-button>
+          <el-button type="primary" @click="addDialog = true">
+            <span>
+              {{ findType == 'attribute' ? '创建属性' : '创建分类' }}
+            </span>
+          </el-button>
           <el-button type="primary" @click="clearSelection">清除选择</el-button>
           <el-button type="danger">批量删除</el-button>
         </div>
+        <!-- <el-affix position="bottom" :offset="20" > -->
 
-        <div style="display: flex;justify-content: center;margin-top: 10px;">
-          <el-pagination background layout="total, sizes, prev, pager, next, jumper" :total="tableList.total"
-            :page-size="pageSize" v-model:current-page="curPage" :page-sizes="[10, 20, 30, 40]"
-            @size-change="handleSizeChange" @current-change="handleCurrentChange" />
-        </div>
+        <!-- </el-affix> -->
+
 
       </div>
 
@@ -214,6 +182,53 @@
         <el-button type="danger" @click="editDialog = false">取消</el-button>
       </div>
     </el-dialog>
+
+    <!-- 展示分类详细信息 -->
+    <el-dialog title="分类详细信息" v-model="classInfoDialog" draggable style="margin-top: 10px;">
+      <div>
+        <el-collapse v-model="activeNames" @change="handleActiveChange">
+          <el-collapse-item title="分类信息" name="1">
+            <div style="text-align: left;">
+              <div>
+                <span style="font-weight: bold;">
+                  分类码:
+                </span>
+                {{ curClass.data.businessCode }}
+              </div>
+              <div>
+                <span style="font-weight: bold;">
+                  中文名称:
+                </span>{{ curClass.data.name }}
+              </div>
+              <div>
+                <span style="font-weight: bold;">
+                  英文名称:
+                </span>{{ curClass.data.nameEn }}
+              </div>
+              <div>
+                <span style="font-weight: bold;">
+                  分类父节点:
+                </span>
+              </div>
+            </div>
+
+          </el-collapse-item>
+          <el-collapse-item title="属性信息" name="2">
+            <el-table :data="curClass.attrList" empty-text="暂无属性">
+              <el-table-column label="中文名称" prop="name"></el-table-column>
+              <el-table-column label="英文名称" prop="nameEn"></el-table-column>
+            </el-table>
+          </el-collapse-item>
+        </el-collapse>
+      </div>
+
+    </el-dialog>
+
+    <div style="display: flex;justify-content: center;margin-top: 10px;height: 35px;background-color: white;">
+      <el-pagination background layout="total, sizes, prev, pager, next, jumper" :total="tableList.total"
+        :page-size="pageSize" v-model:current-page="curPage" :page-sizes="[10, 20, 30, 40]"
+        @size-change="handleSizeChange" @current-change="handleCurrentChange" />
+    </div>
 
   </div>
 
@@ -370,7 +385,7 @@ export default {
     //分页查询分类
     function pageQueryClass() {
       attributeapi.pageQueryClass(className.value, curPage.value, pageSize.value).then(res => {
-        // console.log(res);
+        console.log(res);
         if (res.code == 200) {
           tableList.data = res.data.resultList;
           tableList.total = res.data.total;
@@ -381,7 +396,7 @@ export default {
       })
     }
 
-    //查询信息
+    //查询信息 根据type判断是查询属性还是分类
     function pageQuery() {
       //判断根据查询分类还是属性
       if (findType.value == 'attribute') {
@@ -397,9 +412,16 @@ export default {
       //将选中的加入选择列表中
       selectList.data.push(value);
     }
+
     //改变页面展示数目
     function handleSizeChange(val) {
       pageSize.value = val;
+      //根据类型查询不同的
+      if (curType.value == 'attribute') {
+        pageQueryAttribute();
+      } else {
+        pageQueryClass();
+      }
     }
     //展示属性分类
     function showCategory(index, row) {
@@ -431,7 +453,7 @@ export default {
       //删除属性
       if (type == 'attribute') {
         attributeapi.deleteAttr(val.id).then(res => {
-          console.log(res);
+          // console.log(res);
           if (res.code == 200) {
             ElMessage({ type: 'success', message: '删除成功' });
             //刷新页面
@@ -444,7 +466,7 @@ export default {
         })
       }
       //删除分类
-      else{
+      else {
 
       }
 
@@ -452,24 +474,49 @@ export default {
 
     }
 
-    // 前端分页-切割数据
     //处理当前页面页数变化
     function handleCurrentChange(val) {
       curPage.value = val;
       //根据类型查询不同的
-      if(curType.value=='attribute'){
+      if (curType.value == 'attribute') {
         pageQueryAttribute();
-      }else{
+      } else {
         pageQueryClass();
       }
-      
+    }
+
+
+    //当前分类信息
+    const curClass = reactive({
+      data: {},
+      attrList: [],//属性列表
+    });
+    //展示分类详细信息
+    function showClassInfo(val) {
+      attributeapi.getNodeAttr(val.id).then(res => {
+        console.log('获取分类详细信息', res);
+        if (res.code == 200) {
+          //展示弹窗
+          classInfoDialog.value = true;
+          curClass.data = val;
+          curClass.attrList = res.data;
+        } else {
+          ElMessage({ type: 'error', message: res.msg });
+        }
+      })
+    }
+    //展示分类信息弹窗
+    const classInfoDialog = ref(false);
+    const activeNames = ref('');
+    function handleActiveChange(val) {
+      activeNames.value = val;
     }
 
     return {
       attributeName, curPage, pageSize, pageQueryAttribute, attributeList, dateUtil, handleSelectionChange, selectList,
       handleSizeChange, handleCurrentChange, showCategory, findType, addDialog, attributeForm, formRules,
       addattribute, attributeFormRef, Edit, Delete, editAttribute, editDialog, selectAttribute, deleteAttribute, pageQuery,
-      className, classList, tableList, curType, allList
+      className, classList, tableList, curType, allList, showClassInfo, classInfoDialog, activeNames, handleActiveChange, curClass
     }
   },
   created() {

@@ -11,13 +11,14 @@ export default {
     });
   },
   //创建部件
-  create(partType, source) {
+  create(name,description,partType, source) {
     return request({
       url: "/idme/part/create",
       method: "post",
-      data: {},
+      data: {name,description,partType, source},
     });
   },
+
   //删除部件
   deletePart(masterId, modifier) {
     return request({

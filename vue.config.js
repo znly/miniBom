@@ -8,7 +8,7 @@ module.exports = defineConfig({
   devServer: {
     open: false, //默认关闭自动打开浏览器
     port: 9010,
-    //关闭客户端弹窗
+    //关闭客户端错误弹窗
     client: {
       overlay: false,
     },
