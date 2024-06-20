@@ -48,7 +48,7 @@ export default {
     })
   },
 
-  //分页查询分类
+  //分页查询分类节点
   pageQueryClass(name,curPage,pageSize){
     return request({
         url:'/idme/classification/page',

@@ -17,4 +17,12 @@ export default {
   logout(){
     
   },
+  //用户注册
+  register(name,password){
+    return request({
+      url:'/register',
+      method:'post',
+      data:{name,password}
+    })
+  }
 };

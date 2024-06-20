@@ -11,11 +11,11 @@ export default {
     });
   },
   //创建部件
-  create(name,description,partType, source) {
+  create(source,branch,master,name,partType,extAttrs,clsAttrs) {
     return request({
       url: "/idme/part/create",
       method: "post",
-      data: {name,description,partType, source},
+      data: {source,branch,master,name,partType,extAttrs,clsAttrs},
     });
   },
 

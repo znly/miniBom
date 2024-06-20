@@ -100,6 +100,8 @@ export default {
             //调用api退出登录
 
             ElMessage({type:'success',message:'退出登录成功'})
+            //页面跳转
+            location.href = '/login';
         }
 
         return {

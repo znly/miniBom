@@ -29,16 +29,39 @@
                         </el-form-item>
                         <el-form-item>
                             <el-checkbox v-model="remeberPwd" label="记住密码" size="large" />
-                            <span style="color: rgba(0,0,0,.5);cursor: pointer;margin-left: 100px;">忘记密码</span>
+                            <span style="color: rgba(0,0,0,.5);cursor: pointer;margin-left: 100px;"
+                                @click="registerDialog = true">注册用户</span>
                         </el-form-item>
                         <el-form-item>
                             <el-button type="primary" style="width: 300px" @click="login">登录</el-button>
                         </el-form-item>
-
                     </el-form>
                 </div>
             </div>
         </div>
+        <!-- 用户注册弹窗 -->
+        <el-dialog v-model="registerDialog" title="用户注册" draggable>
+            <div>
+                <el-form :model="registerForm" ref="registerFormRef" :rules="formRules" label-width="100px"
+                    label-position="right">
+                    <el-form-item label="用户名" prop="username">
+                        <el-input style="width: 300px;" v-model="registerForm.username" />
+                    </el-form-item>
+                    <el-form-item label="用户密码" prop="password">
+                        <el-input style="width: 300px;" v-model="registerForm.password" type="password" show-password/>
+                    </el-form-item>
+                </el-form>
+            </div>
+            <div>
+                <el-button type="primary" @click="register">注册</el-button>
+                <el-button @click="registerDialog = false">取消</el-button>
+            </div>
+            <div>
+
+            </div>
+
+        </el-dialog>
+
     </div>
 </template>
 
@@ -51,15 +74,15 @@ import store from '@/store'
 import encryption from '@/utils/Encryption'
 export default {
     name: 'login',
-    mounted(){
+    mounted() {
         //获取本地存储
         let user = JSON.parse(localStorage.getItem('userinfo'));
-        if(user){
+        if (user) {
             this.loginForm.username = user.username;
             this.loginForm.userpwd = user.userpwd;
             this.remeberPwd = true;
         }
-        
+
     },
     setup() {
         //用户登录表单
@@ -82,29 +105,79 @@ export default {
                 return;
             }
             //2.请求api获取数据 其中密码进行加密
-            userapi.login(loginForm.username,encryption.encryptdata(loginForm.userpwd)).then(res => {
+            userapi.login(loginForm.username, encryption.encryptdata(loginForm.userpwd)).then(res => {
                 // console.log(res);
-                if(res.code==200){
+                if (res.code == 200) {
                     //登录成功提醒
-                    ElMessage({type:'success',message:res.msg});
+                    ElMessage({ type: 'success', message: res.msg });
                     //如果记住密码就存储到本地存储
-                    if(remeberPwd){
-                        localStorage.setItem('userinfo',JSON.stringify(loginForm));
+                    if (remeberPwd) {
+                        localStorage.setItem('userinfo', JSON.stringify(loginForm));
                     }
                     //存入vuex
                     store.state.user = res.data;
                     //跳转主页
                     router.push('/main');
-                }else{
-                    ElMessage({type:'error',message:res.msg});
+                } else {
+                    ElMessage({ type: 'error', message: res.msg });
                 }
             })
 
         }
 
+        //用户注册弹窗
+        const registerDialog = ref(false);
+        //用户注册表单
+        const registerForm = reactive({
+            username: '',
+            password: '',
+        })
+        //注册表单校验
+        //表单校验
+        const formRules = {
+            username: [
+                { required: true, message: '请输入用户名', trigger: 'blur' },
+                { min: 1, max: 250, message: 'Length should be 1 to 250', trigger: 'blur' },
+            ],
+            password: [
+                { required: true, message: '请输入密码', trigger: 'blur' },
+                { min: 1, max: 250, message: 'Length should be 1 to 250', trigger: 'blur' },
+            ],
+        }
+        // TODO 表单整体校验 + 登录
+        const registerFormRef = ref(null);
+        //用户注册方法
+        const register = () => {
+            //表单校验
+            registerFormRef.value.validate((valid) => {
+                if (valid) {
+                    // console.log('注册表单校验通过');
+                    //调用注册api
+                    userapi.register(registerForm.username, registerForm.password).then(res => {
+                        console.log('注册回调', res);
+                        if (res.code == 200) {
+                            ElMessage({ type: 'success', message: '注册成功' });
+                            //延时关闭
+                            setTimeout(() => {
+                                registerDialog.value = false;
+                            }, 1500);
+                        } else {
+                            ElMessage({ type: 'error', message: res.msg });
+                        }
+                    })
+                } else {
+                    //校验不通过
+                    ElMessage({ type: 'warning', message: '请输入必填字段' });
+                }
+            })
+
+
+        }
+
         //返回数据
         return {
-            loginForm, login,remeberPwd
+            loginForm, login, remeberPwd, registerDialog, registerForm, register, formRules,
+            registerFormRef,
         }
     },
 

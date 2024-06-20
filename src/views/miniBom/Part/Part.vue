@@ -170,12 +170,13 @@
                   <el-option v-for="(item, key) in sourceOptions" :key="key" :label="item" :value="item" />
                 </el-select>
               </el-form-item>
-              <el-form-item label="装配模式" prop="pattern">
-                <el-select v-model="editPartForm.data.pattern" placeholder="请选择装配模式" style="width: 240px">
+              <el-form-item label="装配模式" prop="partType">
+                <el-select v-model="editPartForm.data.partType" placeholder="请选择装配模式" style="width: 240px">
                   <el-option v-for="(item, key) in patternOptions" :key="key" :label="item" :value="item" />
                 </el-select>
               </el-form-item>
               <el-form-item label="分类" prop="type">
+                <!-- 分类树形选择 -->
                 <el-tree-select v-model="editPartForm.data.type" :data="typeOptions.data" render-after-expand="false"
                   accordion :props="treeProps" style="width: 240px" @node-click="nodeClickFun" placeholder="请选择分类">
                   <template #default="{ data: { name } }">
@@ -271,11 +272,11 @@ export default {
     })
     //来源选项
     const sourceOptions = reactive([
-      '制造', '购买', '购买-单一供应源'
+      'Make', 'Buy', '购买-单一供应源'
     ])
     //装配模式选项
     const patternOptions = reactive([
-      '可分离', '不可分离', '零件'
+      'Separable', 'Inseparable', '零件'
     ])
 
     //部件版本列表
@@ -302,12 +303,19 @@ export default {
       //名称，默认单位，装配模式，来源，分类
       name: '',
       defaultUnit: 'PCS',//默认单位
-      source: '', //来源
-      pattern: '',//装配模式
-      type: '', //分类
-      businessCode: '',//分类代码
-      brand: '',//品牌
-      mode: '',//型号
+      source: 'Make', //来源
+      partType: 'Separable',//装配模式
+      Classification: {
+        "Brand": '8',
+        'Length': '0.00',
+        'Mode': 'B10',
+        "Height or thick": '0.00',
+        'width': '0.00',
+        weight: '0.00',
+      }, //分类
+      //分支和主干
+      branch: {},
+      master: {},
     })
 
     //表单校验
@@ -324,7 +332,7 @@ export default {
         { required: true, message: '请选择来源', trigger: 'blur' },
         { min: 1, max: 250, message: 'Length should be 1 to 250', trigger: 'blur' },
       ],
-      pattern: [
+      partType: [
         { required: true, message: '请选择装配模式', trigger: 'blur' },
         { min: 1, max: 250, message: 'Length should be 1 to 250', trigger: 'blur' },
       ],
@@ -344,10 +352,9 @@ export default {
 
     //点击选择分类
     function nodeClickFun(val) {
-      // console.log('点击',val);
-      partForm.businessCode = val.businessCode;
-      partForm.brand = val.name;
-      partForm.mode = val.name;
+      console.log('当前分类',val);
+      //获取该分类的详细属性
+      getNodeAttr(val);
     }
 
     // TODO 表单整体校验 + 登录
@@ -361,7 +368,7 @@ export default {
           //调用api创建
           // partapi.create(partForm.name,partForm)
         } else {
-          ElMessage({ type: 'warning', message: '请按规定填写表单' });
+          ElMessage({ type: 'warning', message: '请按规定填写必要字段' });
         }
       })
       //表单置空
@@ -369,7 +376,7 @@ export default {
     //获取分类
     function getType() {
       attributeapi.treeQueryClass().then(res => {
-        // console.log(res);
+        console.log('树形获取分类',res);
         if (res.code == 200) {
           typeOptions.data = res.data;
         } else {
@@ -400,9 +407,8 @@ export default {
     })
     //获取部件列表数据
     function getPartList() {
-
       partapi.queryPart(partId.value, curPage.value, pageSize.value).then(res => {
-        // console.log('获取部件列表数据', res);
+        console.log('获取部件列表数据', res);
         if (res.code == 200) {
           //遍历列表 只展示主版本
           let list = res.data.resList;
@@ -412,8 +418,8 @@ export default {
               resList.push(list[i]);
             }
           }
-          partList.data = resList;
-          // partList.data = list;
+          // partList.data = resList;
+          partList.data = list;
           partList.total = res.data.size;
         } else {
           ElMessage({ type: 'error', message: res.msg });
@@ -493,12 +499,26 @@ export default {
       })
     }
 
+    //查询分类的属性
+    function getNodeAttr(val) {
+      attributeapi.getNodeAttr(val.id).then(res => {
+        console.log('获取分类详细信息', res);
+        if (res.code == 200) {
+
+        } else {
+          ElMessage({ type: 'error', message: res.msg });
+        }
+      })
+    }
+
+   
+
     return {
       addDialog, partForm, addPart, partList, getPartList, findType, partId, partName, dateUtil
       , curPage, pageSize, Delete, Edit, editDialog, formRules, options, typeOptions, getType, treeProps,
       nodeClickFun, partFormRef, sourceOptions, patternOptions, editPart, editPartForm,
       showMode, partVersionList, getVersionList, deleteVersion, handleCurrentChange, handleSizeChange,
-      deletePart
+      deletePart, getNodeAttr
     }
   },
   mounted() {
