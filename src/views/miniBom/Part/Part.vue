@@ -215,6 +215,11 @@
                 </template>
               </el-table-column>
               <el-table-column label="名称" prop="name" />
+              <el-table-column label="查看详细信息" >
+                <template #default="scope">
+                  <span>查看</span>
+                </template>
+              </el-table-column>
               <el-table-column fixed="right" label="操作">
                 <template #default="scope">
                   <el-popconfirm title="是否确定删除当前小版本" @confirm="deleteVersion(scope.row)">
@@ -305,17 +310,25 @@ export default {
       defaultUnit: 'PCS',//默认单位
       source: 'Make', //来源
       partType: 'Separable',//装配模式
-      Classification: {
-        "Brand": '8',
-        'Length': '0.00',
-        'Mode': 'B10',
-        "Height or thick": '0.00',
-        'width': '0.00',
-        weight: '0.00',
-      }, //分类
       //分支和主干
       branch: {},
       master: {},
+      extAttrs: [{
+        name: 'Classification',
+        value: ''//分类id
+      }],
+      clsAttrs: [
+        {
+          Classification: {
+            "Brand": '8',
+            'Length': '0.00',
+            'Mode': 'B10',
+            "Height or thick": '0.00',
+            'width': '0.00',
+            weight: '0.00',
+          }, //分类
+        }
+      ],
     })
 
     //表单校验
@@ -336,10 +349,7 @@ export default {
         { required: true, message: '请选择装配模式', trigger: 'blur' },
         { min: 1, max: 250, message: 'Length should be 1 to 250', trigger: 'blur' },
       ],
-      type: [
-        { required: true, message: '请选择分类', trigger: 'blur' },
-        { min: 1, max: 250, message: 'Length should be 1 to 250', trigger: 'blur' },
-      ],
+
       enableFlag: [
         { required: true, message: '请输入属性状态', trigger: 'blur' },
         { min: 1, max: 250, message: 'Length should be 1 to 250', trigger: 'blur' },
@@ -352,7 +362,7 @@ export default {
 
     //点击选择分类
     function nodeClickFun(val) {
-      console.log('当前分类',val);
+      // console.log('当前分类', val);
       //获取该分类的详细属性
       getNodeAttr(val);
     }
@@ -366,7 +376,15 @@ export default {
       partFormRef.value.validate((valid) => {
         if (valid) {
           //调用api创建
-          // partapi.create(partForm.name,partForm)
+          partapi.create(partForm.source, partForm.branch, partForm.master, partForm.name,
+            partForm.partType, partForm.extAttrs, partForm.clsAttrs).then(res => {
+              console.log(res);
+              if (res.code == 200) {
+                ElMessage({ type: 'success', message: '创建成功' });
+              } else {
+                ElMessage({ type: 'error', message: res.msg });
+              }
+            })
         } else {
           ElMessage({ type: 'warning', message: '请按规定填写必要字段' });
         }
@@ -376,7 +394,7 @@ export default {
     //获取分类
     function getType() {
       attributeapi.treeQueryClass().then(res => {
-        console.log('树形获取分类',res);
+        console.log('树形获取分类', res);
         if (res.code == 200) {
           typeOptions.data = res.data;
         } else {
@@ -456,7 +474,7 @@ export default {
     //获取版本管理列表
     function getVersionList() {
       // console.log('当前选中部件',editPartForm.data);
-      //获取当前部件的所有版本 一次查询10000条,问就是懒得做分页
+      //获取当前部件的所有版本 一次查询10000条 
       partapi.allVersion(editPartForm.data.master.id, '', 1, 10000).then(res => {
         console.log('获取版本管理列表', res);
         if (res.code == 200) {
@@ -466,9 +484,10 @@ export default {
         }
       })
     }
+
     //删除小版本
     function deleteVersion(val) {
-      console.log('当前版本信息', val);
+      // console.log('当前版本信息', val);
       //调用api删除
       partapi.delVersion(val.master.id, val.version).then(res => {
         console.log(res);
@@ -511,14 +530,20 @@ export default {
       })
     }
 
-   
+    //获取Part某个小版本信息
+    function getVersionInfo() {
+      partapi.version().then(res => {
+        console.log('获取小版本信息', res);
+      })
+    }
+
 
     return {
       addDialog, partForm, addPart, partList, getPartList, findType, partId, partName, dateUtil
       , curPage, pageSize, Delete, Edit, editDialog, formRules, options, typeOptions, getType, treeProps,
       nodeClickFun, partFormRef, sourceOptions, patternOptions, editPart, editPartForm,
       showMode, partVersionList, getVersionList, deleteVersion, handleCurrentChange, handleSizeChange,
-      deletePart, getNodeAttr
+      deletePart, getNodeAttr, getVersionInfo
     }
   },
   mounted() {

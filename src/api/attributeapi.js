@@ -47,6 +47,13 @@ export default {
       method:'delete'
     })
   },
+  
+
+
+
+
+
+  // ----------分类相关api---------
 
   //分页查询分类节点
   pageQueryClass(name,curPage,pageSize){
