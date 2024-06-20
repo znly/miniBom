@@ -215,9 +215,9 @@
                 </template>
               </el-table-column>
               <el-table-column label="名称" prop="name" />
-              <el-table-column label="查看详细信息" >
+              <el-table-column label="查看详细信息">
                 <template #default="scope">
-                  <span>查看</span>
+                  <el-button :icon="Pointer" circle @click="showVersionInfo(scope.row)" />
                 </template>
               </el-table-column>
               <el-table-column fixed="right" label="操作">
@@ -261,6 +261,7 @@ import { ElMessage } from 'element-plus';
 import {
   Delete,
   Edit,
+  Pointer
 } from '@element-plus/icons-vue'
 import attributeapi from '@/api/attributeapi';
 import store from '@/store';
@@ -537,13 +538,26 @@ export default {
       })
     }
 
+    //展示part某个小版本信息
+    function showVersionInfo(val) {
+      console.log('当前小版本', val);
+      partapi.version(val.master.id, val.version, val.iteration).then(res => {
+        console.log(res);
+        if (res.code == 200) {
+
+        } else {
+          ElMessage({ type: 'error', message: res.msg });
+        }
+      })
+    }
+
 
     return {
       addDialog, partForm, addPart, partList, getPartList, findType, partId, partName, dateUtil
-      , curPage, pageSize, Delete, Edit, editDialog, formRules, options, typeOptions, getType, treeProps,
+      , curPage, pageSize, Delete, Edit, Pointer, editDialog, formRules, options, typeOptions, getType, treeProps,
       nodeClickFun, partFormRef, sourceOptions, patternOptions, editPart, editPartForm,
       showMode, partVersionList, getVersionList, deleteVersion, handleCurrentChange, handleSizeChange,
-      deletePart, getNodeAttr, getVersionInfo
+      deletePart, getNodeAttr, getVersionInfo, showVersionInfo
     }
   },
   mounted() {

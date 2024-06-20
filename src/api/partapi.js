@@ -48,11 +48,11 @@ export default {
   },
 
   //获取Part对应版本信息
-  version(masterId,version){
+  version(masterId,version,Iteration){
     return request({
       url:'/idme/part/version',
       method:'post',
-      data:{masterId,version}
+      data:{masterId,version,Iteration}
     })
   },
 
