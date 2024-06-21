@@ -429,7 +429,7 @@ export default {
     function getPartList() {
       //根据编码和名称查询
       if (findType.value == 'id') {
-        partapi.queryPart(partId.value, null,curPage.value, pageSize.value).then(res => {
+        partapi.queryPart(partId.value, null, curPage.value, pageSize.value).then(res => {
           console.log('获取部件列表数据', res);
           if (res.code == 200) {
             //遍历列表 只展示主版本
@@ -448,7 +448,7 @@ export default {
           }
         })
       } else {
-        partapi.queryPart(null,partName.value, curPage.value, pageSize.value).then(res => {
+        partapi.queryPart(null, partName.value, curPage.value, pageSize.value).then(res => {
           console.log('获取部件列表数据', res);
           if (res.code == 200) {
             //遍历列表 只展示主版本
@@ -460,6 +460,25 @@ export default {
           }
         })
       }
+
+      partapi.queryPart(partId.value, curPage.value, pageSize.value).then(res => {
+        // console.log('获取部件列表数据', res);
+        if (res.code == 200) {
+          //遍历列表 只展示主版本
+          // let list = res.data.resList;
+          // let resList = [];
+          // for (var i = 0; i < list.length; i++) {
+          //   if (list[i].id == list[i].master.id) {
+          //     resList.push(list[i]);
+          //   }
+          // }
+          partList.data = res.data.resList;
+          // partList.data = list;
+          partList.total = res.data.size;
+        } else {
+          ElMessage({ type: 'error', message: res.msg });
+        }
+      })
     }
 
     //编辑部件信息
