@@ -79,4 +79,15 @@ export default {
       url:'/idme/classification/getAttr/'+id
     })
   },
+
+  //更新分类
+  updateClassificationNode(id,name,nameEn,description,descriptionEn,instantiable){
+    return request({
+      url:'/idme/classification/update',
+      method:'post',
+      data:{
+        id,name,nameEn,description,descriptionEn,instantiable
+      }
+    })
+  },
 };

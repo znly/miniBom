@@ -5,10 +5,10 @@
       <!-- 顶部搜索栏 -->
       <div style="display: flex;align-items: center;justify-content: center;">
         <el-radio-group v-model="findType">
-          <el-radio value="class">分类信息查询
+          <el-radio value="class" @click="handleSwitch">分类信息查询
             <el-input placeholder="请输入关键词" style="width: 300px;" v-model="className" :disabled="findType != 'class'" />
           </el-radio>
-          <el-radio value="attribute">属性信息查询
+          <el-radio value="attribute" @click="handleSwitch">属性信息查询
             <el-input placeholder="请输入关键词" style="width: 300px;" v-model="attributeName"
               :disabled="findType != 'attribute'" />
           </el-radio>
@@ -47,8 +47,18 @@
           <el-table-column prop="nameEn" :label="findType=='class'?'分类英文名称':'属性英文名称'" width="120" />
           <el-table-column prop="description" label="中文描述" width="120" />
           <el-table-column prop="descriptionEn" label="英文描述" width="120" />
-          <el-table-column prop="type" label="类型" width="120" />
-          <el-table-column prop="disableFlag" label="是否有效" width="100">
+          <el-table-column prop="type" label="类型" width="120" v-if="findType == 'attribute'">
+            <template #default="scope">
+              <span v-if="scope.row.type == 'STRING'">
+                字符串
+              </span>
+              <span v-else>
+                数值型
+              </span>
+            </template>
+          </el-table-column>
+
+          <el-table-column prop="disableFlag" label="是否有效" width="100" v-if="findType == 'attribute'">
             <template #default="scope">
               <span v-if="scope.row.disableFlag == true">
                 失效
@@ -58,7 +68,18 @@
               </span>
             </template>
           </el-table-column>
-          <el-table-column label="属性所在分类" width="120" :hidden="curType == 'class'">
+
+<!--          <el-table-column prop="instantiable" label="是否实例化" width="100" v-if="findType == 'class'">
+            <template #default="scope">
+              <span v-if="scope.row.instantiable == true">
+                是
+              </span>
+              <span v-else>
+                否
+              </span>
+            </template>
+          </el-table-column>-->
+          <el-table-column label="属性所在分类" width="120" v-if="findType == 'attribute'">
             <template #default="scope">
               <el-button size="small" @click="showCategory(scope.$index, scope.row)" :disabled="curType == 'class'">
                 <el-icon>
@@ -80,7 +101,7 @@
           <el-table-column fixed="right" label="操作" width="120">
             <template #default="scope">
               <el-button type="primary" :icon="Edit" circle @click="showEditDialog(scope.row)" />
-              <el-popconfirm :title="curType == 'class' ? '确认是否需要删除分类?' : '确认是否需要删除属性?'"
+              <el-popconfirm :title="curType == 'class' ? '确认是否需要删除分E类?' : '确认是否需要删除属性?'"
                 @confirm="deleteAttribute(scope.row, 'attribute')">
                 <template #reference>
                   <el-button type="danger" :icon="Delete" circle />
@@ -149,10 +170,10 @@
         <el-form ref="attributeFormRef" style="max-width: 500px" :model="selectAttribute.data" :rules="formRules"
           label-width="auto" class="demo-ruleForm" status-icon>
           <el-form-item label="中文名称" prop="name">
-            <el-input v-model="selectAttribute.data.name" />
+            <el-input v-model="selectAttribute.data.name" disabled/>
           </el-form-item>
           <el-form-item label="英文名称" prop="nameEn">
-            <el-input v-model="selectAttribute.data.nameEn" />
+            <el-input v-model="selectAttribute.data.nameEn" disabled/>
           </el-form-item>
           <el-form-item label="中文描述" prop="description">
             <el-input v-model="selectAttribute.data.description" />
@@ -194,7 +215,13 @@
           <el-form-item label="英文描述" prop="descriptionEn">
             <el-input v-model="selectClass.data.descriptionEn" />
           </el-form-item>
-          <el-form-item label="数据类型" prop="type">
+          <el-form-item label="是否实例化" prop="instantiable">
+            <el-radio-group v-model="selectClass.data.instantiable">
+              <el-radio label="true">是</el-radio>
+              <el-radio label="false">否</el-radio>
+            </el-radio-group>
+          </el-form-item>
+<!--          <el-form-item label="数据类型" prop="type">
             <el-input v-model="selectClass.data.type" disabled />
           </el-form-item>
           <el-form-item label="属性状态" prop="disableFlag">
@@ -202,7 +229,7 @@
           </el-form-item>
           <el-form-item label="属性类型" prop="aType">
             <el-input v-model="selectClass.data.aType" disabled />
-          </el-form-item>
+          </el-form-item>-->
         </el-form>
       </div>
       <div>
@@ -556,17 +583,41 @@ export default {
         selectAttribute.data = val;
       }
     }
+
+    //切换查询选择
+    function handleSwitch(){
+      tableList.data = null;
+      tableList.total = 0;
+    }
+
     //编辑分类信息
     function editClass(){
-
+      //console.log(selectClass.data)
+      attributeapi.updateClassificationNode(selectClass.data.id, selectClass.data.name,selectClass.data.nameEn,selectClass.data.description,
+          selectClass.data.descriptionEn,selectClass.data.instantiable
+      ).then(res => {
+        if (res.code == 200) {
+          ElMessage({ type: 'success', message: '修改成功' });
+          //关闭修改弹窗
+          editClassDialog.value = false;
+          //可以刷新页面重新获取数据但没必要
+          // setTimeout(() => {
+          //   location.reload();
+          // }, 500);
+        } else {
+          ElMessage({ type: 'error', message: res.msg });
+        }
+      })
     }
+
+
 
     return {
       attributeName, curPage, pageSize, pageQueryAttribute, attributeList, dateUtil, handleSelectionChange, selectList,
       handleSizeChange, handleCurrentChange, showCategory, findType, addDialog, attributeForm, formRules,
       addattribute, attributeFormRef, Edit, Delete, editAttribute, editDialog, selectAttribute, deleteAttribute, pageQuery,
       className, classList, tableList, curType, allList, showClassInfo, classInfoDialog, activeNames, handleActiveChange,
-      curClass, editClassDialog, showEditDialog,selectClass,editClass
+      curClass, editClassDialog, showEditDialog,selectClass,editClass,handleSwitch
     }
   },
   created() {
