@@ -90,4 +90,21 @@ export default {
       }
     })
   },
+
+  //添加属性
+  createClassificationNode(businessCode,name,nameEn,description,disableFlag,instantiable,parentNode) {
+    return request({
+      url: "/idme/classification/create",
+      method: "post",
+      data: {
+        businessCode,
+        name,
+        nameEn,
+        description,
+        disableFlag,
+        instantiable,
+        parentNode
+      },
+    });
+  },
 };

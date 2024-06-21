@@ -104,7 +104,7 @@
               </el-form-item>
               <el-form-item label="分类" prop="type">
                 <!-- <el-input v-model="partForm.type" /> -->
-                <el-tree-select v-model="partForm.type" :data="typeOptions.data" render-after-expand="false" accordion
+                <el-tree-select v-model="partForm.extAttrs[0].value" :data="typeOptions.data" render-after-expand="false" accordion
                   :props="treeProps" style="width: 240px" @node-click="nodeClickFun" placeholder="请选择分类">
                   <template #default="{ data: { name } }">
                     {{ name }}
@@ -291,7 +291,7 @@ export default {
     })
 
     const treeProps = reactive({
-      value: 'name',
+      value: 'id',
       label: 'name',
       children: 'children'
     })
@@ -373,23 +373,24 @@ export default {
 
     //添加部件方法
     const addPart = () => {
+      console.log(partForm);
       //表单校验
-      partFormRef.value.validate((valid) => {
-        if (valid) {
-          //调用api创建
-          partapi.create(partForm.source, partForm.branch, partForm.master, partForm.name,
-            partForm.partType, partForm.extAttrs, partForm.clsAttrs).then(res => {
-              console.log(res);
-              if (res.code == 200) {
-                ElMessage({ type: 'success', message: '创建成功' });
-              } else {
-                ElMessage({ type: 'error', message: res.msg });
-              }
-            })
-        } else {
-          ElMessage({ type: 'warning', message: '请按规定填写必要字段' });
-        }
-      })
+      // partFormRef.value.validate((valid) => {
+      //   if (valid) {
+      //     //调用api创建
+      //     partapi.create(partForm.source, partForm.branch, partForm.master, partForm.name,
+      //       partForm.partType, partForm.extAttrs, partForm.clsAttrs).then(res => {
+      //         console.log(res);
+      //         if (res.code == 200) {
+      //           ElMessage({ type: 'success', message: '创建成功' });
+      //         } else {
+      //           ElMessage({ type: 'error', message: res.msg });
+      //         }
+      //       })
+      //   } else {
+      //     ElMessage({ type: 'warning', message: '请按规定填写必要字段' });
+      //   }
+      // })
       //表单置空
     }
     //获取分类

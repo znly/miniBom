@@ -112,7 +112,7 @@
         </el-table>
 
         <div style="margin-top: 10px;">
-          <el-button type="primary" @click="addDialog = true">
+          <el-button type="primary" @click="findType == 'attribute'?addDialog = true:addClassDialog = true">
             <span>
               {{ findType == 'attribute' ? '创建属性' : '创建分类' }}
             </span>
@@ -187,9 +187,9 @@
           <el-form-item label="属性状态" prop="disableFlag">
             <el-input v-model="selectAttribute.data.disableFlag" disabled />
           </el-form-item>
-          <el-form-item label="属性类型" prop="aType">
+<!--          <el-form-item label="属性类型" prop="aType">
             <el-input v-model="selectAttribute.data.aType" disabled />
-          </el-form-item>
+          </el-form-item>-->
         </el-form>
       </div>
       <div>
@@ -201,7 +201,7 @@
     <!-- 编辑分类弹窗 -->
     <el-dialog v-model="editClassDialog" title="编辑分类" draggable>
       <div>
-        <el-form ref="attributeFormRef" style="max-width: 500px" :model="selectClass.data" :rules="formRules"
+        <el-form ref="attributeFormRef" style="max-width: 500px" :model="selectClass.data" :rules="classFormRules"
           label-width="auto" class="demo-ruleForm" status-icon>
           <el-form-item label="中文名称" prop="name">
             <el-input v-model="selectClass.data.name" />
@@ -235,6 +235,53 @@
       <div>
         <el-button type="primary" @click="editClass">提交</el-button>
         <el-button type="danger" @click="editClassDialog = false">取消</el-button>
+      </div>
+    </el-dialog>
+
+    <!-- 添加分类表单 -->
+    <el-dialog v-model="addClassDialog" title="添加分类" draggable>
+      <div>
+        <el-form ref="attributeFormRef" style="max-width: 500px" :model="ClassForm" :rules="classFormRules"
+                 label-width="auto" class="demo-ruleForm" status-icon>
+          <el-form-item label="商业码" prop="businessCode">
+            <el-input v-model="ClassForm.businessCode" />
+          </el-form-item>
+          <el-form-item label="中文名称" prop="name">
+            <el-input v-model="ClassForm.name" />
+          </el-form-item>
+          <el-form-item label="英文名称" prop="nameEn">
+            <el-input v-model="ClassForm.nameEn" />
+          </el-form-item>
+          <el-form-item label="中文描述" prop="description">
+            <el-input v-model="ClassForm.description" />
+          </el-form-item>
+          <el-form-item label="是否实例化" prop="instantiable">
+            <el-radio-group v-model="ClassForm.instantiable">
+              <el-radio label="true">是</el-radio>
+              <el-radio label="false">否</el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="是否生效" prop="disableFlag">
+            <el-radio-group v-model="ClassForm.disableFlag">
+              <el-radio label="false">是</el-radio>
+              <el-radio label="true">否</el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="父节点" prop="parentNode.id">
+            <!-- <el-input v-model="partForm.type" /> -->
+            <el-tree-select v-model="ClassForm.parentNode.id" :data="typeOptions.data" render-after-expand="false" accordion
+                            :props="treeProps" style="width: 240px" @node-click="nodeClickFun" placeholder="请选择分类">
+              <template #default="{ data: { name } }">
+                {{ name }}
+                <!-- <span style="color: gray">(suffix)</span> -->
+              </template>
+            </el-tree-select>
+          </el-form-item>
+        </el-form>
+      </div>
+      <div>
+        <el-button type="primary" @click="addClass">确定</el-button>
+        <el-button type="danger" @click="addClassDialog = false">取消</el-button>
       </div>
     </el-dialog>
 
@@ -334,6 +381,8 @@ export default {
     })
     //添加属性弹窗
     const addDialog = ref(false);
+    //添加分类弹窗
+    const addClassDialog = ref(false);
     //编辑属性弹窗
     const editDialog = ref(false);
     //编辑分类弹窗
@@ -349,6 +398,19 @@ export default {
       type: '',
       enableFlag: '',
       aType: '扩展属性'
+    })
+    //添加分类表单
+    const ClassForm = reactive({
+      //中英文名称和中英文描述
+      businessCode: '',
+      name: '',
+      nameEn: '',
+      description: '',
+      disableFlag: '',
+      instantiable: '',
+      parentNode:{
+        id: ''
+      }
     })
     //选中要编辑的属性
     const selectAttribute = reactive({
@@ -386,6 +448,33 @@ export default {
       ],
     }
 
+    const classFormRules = {
+      name: [
+        { required: true, message: '请输入中文名称', trigger: 'blur' },
+        { min: 1, max: 250, message: 'Length should be 1 to 250', trigger: 'blur' },
+      ],
+      nameEn: [
+        { required: true, message: '请输入英文名称', trigger: 'blur' },
+        { min: 1, max: 250, message: 'Length should be 1 to 250', trigger: 'blur' },
+      ],
+      description: [
+        { required: true, message: '请输入中文描述', trigger: 'blur' },
+        { min: 1, max: 250, message: 'Length should be 1 to 250', trigger: 'blur' },
+      ],
+      disableFlag: [
+        { required: true, message: '请选择是否生效', trigger: 'blur' },
+        { min: 1, max: 250, message: 'Length should be 1 to 250', trigger: 'blur' },
+      ],
+      instantiable: [
+        { required: true, message: '请选择是否实例化', trigger: 'blur' },
+        { min: 1, max: 250, message: 'Length should be 1 to 250', trigger: 'blur' },
+      ],
+      descriptionEn: [
+        { required: true, message: '请输入英文描述', trigger: 'blur' },
+        { min: 1, max: 250, message: 'Length should be 1 to 250', trigger: 'blur' },
+      ],
+    }
+
 
     //查询分类名称
     const className = ref('');
@@ -393,6 +482,16 @@ export default {
     const classList = reactive({
       data: [],
       total: 0
+    });
+
+    const treeProps = reactive({
+      value: 'id',
+      label: 'name',
+      children: 'children'
+    });
+
+    const typeOptions = reactive({
+      data: []
     })
 
 
@@ -610,6 +709,73 @@ export default {
       })
     }
 
+    const addClass = () => {
+     // console.log(ClassForm);
+      attributeapi.createClassificationNode(ClassForm.businessCode,ClassForm.name, ClassForm.nameEn, ClassForm.description,ClassForm.disableFlag,
+      ClassForm.instantiable,ClassForm.parentNode).then(res => {
+        // console.log(res);
+        if (res.code == 200) {
+          //创建成功后清空表单
+          ElMessage({ type: 'success', message: '创建成功' });
+          addDialog.value = false;
+          //刷新页面重载数据
+          location.reload();
+        } else {
+          ElMessage({ type: 'error', message: res.msg });
+        }
+      })
+/*      //表单校验
+      attributeFormRef.value.validate((valid) => {
+        if (valid) {
+          //通过后调用api创建属性
+          attributeapi.createAttr(attributeForm.name, attributeForm.nameEn, attributeForm.description, attributeForm.descriptionEn,
+              attributeForm.type, attributeForm.enableFlag).then(res => {
+            // console.log(res);
+            if (res.code == 200) {
+              //创建成功后清空表单
+              ElMessage({ type: 'success', message: '创建成功' });
+              addDialog.value = false;
+              //刷新页面重载数据
+              location.reload();
+            } else {
+              ElMessage({ type: 'error', message: res.msg });
+            }
+          })
+        } else {
+          ElMessage({ type: 'warning', message: '请填写必填字段' })
+        }
+      })*/
+    }
+
+    function getType() {
+      attributeapi.treeQueryClass().then(res => {
+        //console.log('树形获取分类', res);
+        if (res.code == 200) {
+          typeOptions.data = res.data;
+        } else {
+          ElMessage({ type: 'error', message: res.msg });
+        }
+
+      })
+    }
+
+    function nodeClickFun(val) {
+      // console.log('当前分类', val);
+      //获取该分类的详细属性
+      getNodeAttr(val);
+    }
+
+    function getNodeAttr(val) {
+      attributeapi.getNodeAttr(val.id).then(res => {
+        console.log('获取分类详细信息', res);
+        if (res.code == 200) {
+
+        } else {
+          ElMessage({ type: 'error', message: res.msg });
+        }
+      })
+    }
+
 
 
     return {
@@ -617,10 +783,16 @@ export default {
       handleSizeChange, handleCurrentChange, showCategory, findType, addDialog, attributeForm, formRules,
       addattribute, attributeFormRef, Edit, Delete, editAttribute, editDialog, selectAttribute, deleteAttribute, pageQuery,
       className, classList, tableList, curType, allList, showClassInfo, classInfoDialog, activeNames, handleActiveChange,
-      curClass, editClassDialog, showEditDialog,selectClass,editClass,handleSwitch
+      curClass, editClassDialog, showEditDialog,selectClass,editClass,handleSwitch,addClassDialog,ClassForm,addClass,classFormRules,
+      getType,typeOptions,treeProps,nodeClickFun,getNodeAttr
     }
   },
   created() {
+  },
+
+  mounted() {
+    this.getType();
+    //获取所有版本列表
   },
   methods: {
     //清除所有选择
