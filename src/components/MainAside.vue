@@ -13,7 +13,7 @@
                     <el-icon>
                         <Menu/>
                     </el-icon>
-                    <span>属性管理</span>
+                    <span>分类&属性管理</span>
                 </template>
             </el-menu-item>
 
