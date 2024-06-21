@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>属性管理</h1>
+    <h1>{{ findType == 'class' ? '分类' : '属性' }}管理</h1>
     <div style="margin-left: 20px;margin-right: 20px;">
       <!-- 顶部搜索栏 -->
       <div style="display: flex;align-items: center;justify-content: center;">
@@ -33,7 +33,7 @@
               </span>
             </template>
           </el-table-column>
-          <el-table-column prop="name" label="属性中文名称" width="120">
+          <el-table-column prop="name" :label="findType=='class'?'分类中文名称':'属性中文名称'" width="120">
             <template #default="scope">
               <span v-if="scope.row.className == 'ClassificationNode'" style="cursor: pointer;color:royalblue"
                 @click="showClassInfo(scope.row)">
@@ -44,7 +44,7 @@
               </span>
             </template>
           </el-table-column>
-          <el-table-column prop="nameEn" label="属性英文名称" width="120" />
+          <el-table-column prop="nameEn" :label="findType=='class'?'分类英文名称':'属性英文名称'" width="120" />
           <el-table-column prop="description" label="中文描述" width="120" />
           <el-table-column prop="descriptionEn" label="英文描述" width="120" />
           <el-table-column prop="type" label="类型" width="120" />
@@ -79,8 +79,7 @@
           </el-table-column>
           <el-table-column fixed="right" label="操作" width="120">
             <template #default="scope">
-              <el-button type="primary" :icon="Edit" circle
-                @click="editDialog = true, selectAttribute.data = scope.row" />
+              <el-button type="primary" :icon="Edit" circle @click="showEditDialog(scope.row)" />
               <el-popconfirm :title="curType == 'class' ? '确认是否需要删除分类?' : '确认是否需要删除属性?'"
                 @confirm="deleteAttribute(scope.row, 'attribute')">
                 <template #reference>
@@ -100,11 +99,6 @@
           <el-button type="primary" @click="clearSelection">清除选择</el-button>
           <el-button type="danger">批量删除</el-button>
         </div>
-        <!-- <el-affix position="bottom" :offset="20" > -->
-
-        <!-- </el-affix> -->
-
-
       </div>
 
     </div>
@@ -180,6 +174,40 @@
       <div>
         <el-button type="primary" @click="editAttribute">提交</el-button>
         <el-button type="danger" @click="editDialog = false">取消</el-button>
+      </div>
+    </el-dialog>
+
+    <!-- 编辑分类弹窗 -->
+    <el-dialog v-model="editClassDialog" title="编辑分类" draggable>
+      <div>
+        <el-form ref="attributeFormRef" style="max-width: 500px" :model="selectClass.data" :rules="formRules"
+          label-width="auto" class="demo-ruleForm" status-icon>
+          <el-form-item label="中文名称" prop="name">
+            <el-input v-model="selectClass.data.name" />
+          </el-form-item>
+          <el-form-item label="英文名称" prop="nameEn">
+            <el-input v-model="selectClass.data.nameEn" />
+          </el-form-item>
+          <el-form-item label="中文描述" prop="description">
+            <el-input v-model="selectClass.data.description" />
+          </el-form-item>
+          <el-form-item label="英文描述" prop="descriptionEn">
+            <el-input v-model="selectClass.data.descriptionEn" />
+          </el-form-item>
+          <el-form-item label="数据类型" prop="type">
+            <el-input v-model="selectClass.data.type" disabled />
+          </el-form-item>
+          <el-form-item label="属性状态" prop="disableFlag">
+            <el-input v-model="selectClass.data.disableFlag" disabled />
+          </el-form-item>
+          <el-form-item label="属性类型" prop="aType">
+            <el-input v-model="selectClass.data.aType" disabled />
+          </el-form-item>
+        </el-form>
+      </div>
+      <div>
+        <el-button type="primary" @click="editClass">提交</el-button>
+        <el-button type="danger" @click="editClassDialog = false">取消</el-button>
       </div>
     </el-dialog>
 
@@ -281,6 +309,8 @@ export default {
     const addDialog = ref(false);
     //编辑属性弹窗
     const editDialog = ref(false);
+    //编辑分类弹窗
+    const editClassDialog = ref(false);
     //添加属性表单
     const attributeForm = reactive({
       //中英文名称和中英文描述
@@ -512,11 +542,31 @@ export default {
       activeNames.value = val;
     }
 
+    //当前选中编辑的分类
+    const selectClass = reactive({
+      data:{}
+    });
+    //显示编辑弹窗
+    function showEditDialog(val) {
+      if (val.className == "ClassificationNode") {
+        editClassDialog.value = true;
+        selectClass.data = val;
+      } else {
+        editDialog.value = true;
+        selectAttribute.data = val;
+      }
+    }
+    //编辑分类信息
+    function editClass(){
+
+    }
+
     return {
       attributeName, curPage, pageSize, pageQueryAttribute, attributeList, dateUtil, handleSelectionChange, selectList,
       handleSizeChange, handleCurrentChange, showCategory, findType, addDialog, attributeForm, formRules,
       addattribute, attributeFormRef, Edit, Delete, editAttribute, editDialog, selectAttribute, deleteAttribute, pageQuery,
-      className, classList, tableList, curType, allList, showClassInfo, classInfoDialog, activeNames, handleActiveChange, curClass
+      className, classList, tableList, curType, allList, showClassInfo, classInfoDialog, activeNames, handleActiveChange,
+      curClass, editClassDialog, showEditDialog,selectClass,editClass
     }
   },
   created() {
