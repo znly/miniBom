@@ -33,7 +33,7 @@
               </span>
             </template>
           </el-table-column>
-          <el-table-column prop="name" :label="findType=='class'?'分类中文名称':'属性中文名称'" width="120">
+          <el-table-column prop="name" :label="findType == 'class' ? '分类中文名称' : '属性中文名称'" width="120">
             <template #default="scope">
               <span v-if="scope.row.className == 'ClassificationNode'" style="cursor: pointer;color:royalblue"
                 @click="showClassInfo(scope.row)">
@@ -44,7 +44,7 @@
               </span>
             </template>
           </el-table-column>
-          <el-table-column prop="nameEn" :label="findType=='class'?'分类英文名称':'属性英文名称'" width="120" />
+          <el-table-column prop="nameEn" :label="findType == 'class' ? '分类英文名称' : '属性英文名称'" width="120" />
           <el-table-column prop="description" label="中文描述" width="120" />
           <el-table-column prop="descriptionEn" label="英文描述" width="120" />
           <el-table-column prop="type" label="类型" width="120" v-if="findType == 'attribute'">
@@ -198,6 +198,41 @@
       </div>
     </el-dialog>
 
+    <!-- 创建分类表单 -->
+    <el-dialog v-model="addClassDialog" title="创建分类" draggable>
+      <div>
+        <el-form ref="classFormRef  " style="max-width: 500px" :model="classForm" :rules="formRules"
+          label-width="auto" class="demo-ruleForm" status-icon>
+          <el-form-item label="中文名称" prop="name">
+            <el-input v-model="classForm.name" />
+          </el-form-item>
+          <el-form-item label="英文名称" prop="nameEn">
+            <el-input v-model="classForm.nameEn" />
+          </el-form-item>
+          <el-form-item label="中文描述" prop="description">
+            <el-input v-model="classForm.description" />
+          </el-form-item>
+          <el-form-item label="英文描述" prop="descriptionEn">
+            <el-input v-model="classForm.descriptionEn" />
+          </el-form-item>
+
+          <!-- <el-form-item label="属性状态" prop="enableFlag">
+            <el-select v-model="attributeForm.enableFlag" placeholder="请选择" size="large" style="width: 240px">
+              <el-option label="有效" value="true" />
+              <el-option label="失效" value="false" />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="属性类型" prop="aType">
+            <el-input v-model="attributeForm.aType" />
+          </el-form-item> -->
+        </el-form>
+      </div>
+      <div>
+        <el-button type="primary" @click="addClass">确定</el-button>
+        <el-button type="danger" @click="addClassDialog = false">取消</el-button>
+      </div>
+    </el-dialog>
+
     <!-- 编辑分类弹窗 -->
     <el-dialog v-model="editClassDialog" title="编辑分类" draggable>
       <div>
@@ -345,6 +380,7 @@ import {
   Delete,
   Edit,
 } from '@element-plus/icons-vue'
+
 
 export default {
   name: 'attribute',
@@ -521,6 +557,18 @@ export default {
         }
       })
     }
+    //添加分类
+    function addClass(){
+      classFormRef.value.validate((valid)=>{
+        if(valid){
+          //请求api添加分类
+
+        }
+        else {
+          ElMessage({ type: 'warning', message: '请填写必填字段' })
+        }
+      })
+    }
 
     //分页查询属性值
     function pageQueryAttribute() {
@@ -604,31 +652,7 @@ export default {
       })
     }
 
-    //删除单个属性 传入的是值、类型
-    function deleteAttribute(val, type) {
-      //删除属性
-      if (type == 'attribute') {
-        attributeapi.deleteAttr(val.id).then(res => {
-          // console.log(res);
-          if (res.code == 200) {
-            ElMessage({ type: 'success', message: '删除成功' });
-            //刷新页面
-            setTimeout(() => {
-              location.reload();
-            }, 500);
-          } else {
-            ElMessage({ type: 'error', message: res.msg });
-          }
-        })
-      }
-      //删除分类
-      else {
 
-      }
-
-
-
-    }
 
     //处理当前页面页数变化
     function handleCurrentChange(val) {
@@ -670,9 +694,10 @@ export default {
 
     //当前选中编辑的分类
     const selectClass = reactive({
-      data:{}
+      data: {}
     });
-    //显示编辑弹窗
+
+    //显示编辑弹窗 分类和属性共用
     function showEditDialog(val) {
       if (val.className == "ClassificationNode") {
         editClassDialog.value = true;
@@ -708,45 +733,6 @@ export default {
         }
       })
     }
-
-    const addClass = () => {
-     // console.log(ClassForm);
-      attributeapi.createClassificationNode(ClassForm.businessCode,ClassForm.name, ClassForm.nameEn, ClassForm.description,ClassForm.disableFlag,
-      ClassForm.instantiable,ClassForm.parentNode).then(res => {
-        // console.log(res);
-        if (res.code == 200) {
-          //创建成功后清空表单
-          ElMessage({ type: 'success', message: '创建成功' });
-          addDialog.value = false;
-          //刷新页面重载数据
-          location.reload();
-        } else {
-          ElMessage({ type: 'error', message: res.msg });
-        }
-      })
-/*      //表单校验
-      attributeFormRef.value.validate((valid) => {
-        if (valid) {
-          //通过后调用api创建属性
-          attributeapi.createAttr(attributeForm.name, attributeForm.nameEn, attributeForm.description, attributeForm.descriptionEn,
-              attributeForm.type, attributeForm.enableFlag).then(res => {
-            // console.log(res);
-            if (res.code == 200) {
-              //创建成功后清空表单
-              ElMessage({ type: 'success', message: '创建成功' });
-              addDialog.value = false;
-              //刷新页面重载数据
-              location.reload();
-            } else {
-              ElMessage({ type: 'error', message: res.msg });
-            }
-          })
-        } else {
-          ElMessage({ type: 'warning', message: '请填写必填字段' })
-        }
-      })*/
-    }
-
     function getType() {
       attributeapi.treeQueryClass().then(res => {
         //console.log('树形获取分类', res);
@@ -760,9 +746,9 @@ export default {
     }
 
     function nodeClickFun(val) {
-      // console.log('当前分类', val);
       //获取该分类的详细属性
       getNodeAttr(val);
+
     }
 
     function getNodeAttr(val) {
@@ -781,7 +767,7 @@ export default {
     return {
       attributeName, curPage, pageSize, pageQueryAttribute, attributeList, dateUtil, handleSelectionChange, selectList,
       handleSizeChange, handleCurrentChange, showCategory, findType, addDialog, attributeForm, formRules,
-      addattribute, attributeFormRef, Edit, Delete, editAttribute, editDialog, selectAttribute, deleteAttribute, pageQuery,
+      addattribute, attributeFormRef, Edit, Delete, editAttribute, editDialog, selectAttribute, pageQuery,
       className, classList, tableList, curType, allList, showClassInfo, classInfoDialog, activeNames, handleActiveChange,
       curClass, editClassDialog, showEditDialog,selectClass,editClass,handleSwitch,addClassDialog,ClassForm,addClass,classFormRules,
       getType,typeOptions,treeProps,nodeClickFun,getNodeAttr
@@ -804,4 +790,6 @@ export default {
 }
 </script>
 
-<style></style>
+<style scoped>
+
+</style>

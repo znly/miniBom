@@ -47,7 +47,7 @@ export default {
       method:'delete'
     })
   },
-  
+
 
 
 
@@ -71,7 +71,20 @@ export default {
     })
   },
   //删除分类
-
+  deleteClass(id){
+    return request({
+      url:'/idme/classification/delete/'+id,
+      method:'delete'
+    })
+  },
+  //删除分类属性
+  deleteAttr(linkIds){
+    return request({
+      url:'/idme/classification/deleteAttr',
+      method:'delete',
+      data:{linkIds}
+    })
+  },
 
   //获取分类详细信息
   getNodeAttr(id){
@@ -81,30 +94,29 @@ export default {
   },
 
   //更新分类
-  updateClassificationNode(id,name,nameEn,description,descriptionEn,instantiable){
+  updateClass(){
     return request({
       url:'/idme/classification/update',
       method:'post',
-      data:{
-        id,name,nameEn,description,descriptionEn,instantiable
-      }
+      data:{}
     })
   },
 
-  //添加属性
-  createClassificationNode(businessCode,name,nameEn,description,disableFlag,instantiable,parentNode) {
+  //增加分类关联属性
+  addAttr(attrIds,holderId){
     return request({
-      url: "/idme/classification/create",
-      method: "post",
-      data: {
-        businessCode,
-        name,
-        nameEn,
-        description,
-        disableFlag,
-        instantiable,
-        parentNode
-      },
-    });
+      url:'/idme/classification/addAttr',
+      method:'post',
+      data:{attrIds,holderId}
+    })
   },
+
+  //创建分类
+  createClass(name,nameEn,description,descriptionEn){
+    return request({
+      url:'/idme/classification/create',
+      method:'post',
+      data:{name,nameEn,description,descriptionEn}
+    })
+  }
 };

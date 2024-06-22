@@ -96,16 +96,16 @@
                   <el-option v-for="(item, key) in sourceOptions" :key="key" :label="item" :value="item" />
                 </el-select>
               </el-form-item>
-              <el-form-item label="装配模式" prop="pattern">
+              <el-form-item label="装配模式" prop="partType">
                 <!-- <el-input v-model="partForm.pattern" /> -->
-                <el-select v-model="partForm.pattern" placeholder="请选择装配模式" style="width: 240px">
+                <el-select v-model="partForm.partType" placeholder="请选择装配模式" style="width: 240px">
                   <el-option v-for="(item, key) in patternOptions" :key="key" :label="item" :value="item" />
                 </el-select>
               </el-form-item>
-              <el-form-item label="分类" prop="type">
+              <el-form-item label="分类" prop="classification">
                 <!-- <el-input v-model="partForm.type" /> -->
-                <el-tree-select v-model="partForm.extAttrs[0].value" :data="typeOptions.data" render-after-expand="false" accordion
-                  :props="treeProps" style="width: 240px" @node-click="nodeClickFun" placeholder="请选择分类">
+                <el-tree-select v-model="partForm.classification" :data="typeOptions.data" render-after-expand="false"
+                  accordion :props="treeProps" style="width: 240px" @node-click="nodeClickFun" placeholder="请选择分类">
                   <template #default="{ data: { name } }">
                     {{ name }}
                     <!-- <span style="color: gray">(suffix)</span> -->
@@ -119,10 +119,10 @@
                 <el-input v-model="partForm.businessCode" disabled />
               </el-form-item>
               <el-form-item label="品牌">
-                <el-input v-model="partForm.brand" disabled />
+                <el-input v-model="partForm.clsAttrs[0].Classification.Brand" disabled />
               </el-form-item>
               <el-form-item label="型号">
-                <el-input v-model="partForm.mode" disabled />
+                <el-input v-model="partForm.clsAttrs[0].Classification.Mode" disabled />
               </el-form-item>
             </el-form>
           </div>
@@ -142,7 +142,8 @@
         </el-dialog>
 
         <!-- 编辑部件弹窗 -->
-        <el-dialog v-model="editDialog" title="编辑部件" draggable style="margin-top: 20px;" @closed="showMode = 'basic'">
+        <el-dialog v-model="editDialog" title="编辑部件" draggable style="margin-top: 20px;"
+          @closed="showMode = 'basic', expands = []">
           <div>
             <el-radio-group v-model="showMode" size="large">
               <el-radio-button label="基本属性" value="basic" />
@@ -207,7 +208,24 @@
 
           <!-- 版本管理 -->
           <div v-show="showMode == 'version'">
-            <el-table :data="partVersionList.data">
+            <el-table :data="partVersionList.data" ref="expandTable" row-key="id" :expand-row-keys="expands"
+              :header-cell-style="{ background: '#EFF3F5', color: '#6B7275' }">
+              <el-table-column type="expand" width="1">
+                <template #default="scope">
+                  <div>
+                    <!-- <div>{{ smallVersion.data}}</div> -->
+                    <div>创建时间:{{ dateUtil.transformDate(smallVersion.data.createTime) }}</div>
+                    <div>更新时间:{{ dateUtil.transformDate(smallVersion.data.lastUpdateTime) }}</div>
+                    <div>中文描述:{{ smallVersion.data.description }}</div>
+                    <div>英文描述:{{ smallVersion.data.descriptionEn }}</div>
+                    <div>工作状态:{{ smallVersion.data.workingState }}</div>
+                    <div>
+                      扩展属性
+                      <span>{{ smallVersion.data.extAttrs }}</span>
+                    </div>
+                  </div>
+                </template>
+              </el-table-column>
               <el-table-column label="编码" prop="id" />
               <el-table-column label="版本号" prop="version">
                 <template #default="scope">
@@ -217,7 +235,7 @@
               <el-table-column label="名称" prop="name" />
               <el-table-column label="查看详细信息">
                 <template #default="scope">
-                  <el-button :icon="Pointer" circle @click="showVersionInfo(scope.row)" />
+                  <el-button :icon="Pointer" circle @click="handleRowClick(scope.row)" />
                 </template>
               </el-table-column>
               <el-table-column fixed="right" label="操作">
@@ -243,13 +261,11 @@
       </div>
     </div>
     <!-- 底部分页组件 -->
-    <!-- <el-affix position="bottom" offset="10"> -->
     <div style="display: flex;justify-content: center;margin-top: 10px;background-color: white;height: 35px;">
       <el-pagination background layout="total, sizes, prev, pager, next, jumper" :total="partList.total"
         :page-size="pageSize" v-model:current-page="curPage" :page-sizes="[10, 20, 30, 40]"
         @size-change="handleSizeChange" @current-change="handleCurrentChange" />
     </div>
-    <!-- </el-affix> -->
   </div>
 </template>
 
@@ -314,20 +330,25 @@ export default {
       //分支和主干
       branch: {},
       master: {},
-      extAttrs: [{
-        name: 'Classification',
-        value: ''//分类id
-      }],
+      //分类
+      classification: null,
+      //分类代码
+      businessCode: '',
+      extAttrs: [
+        {
+          "name": 'Classification',
+          'value': '',//分类id
+        }],
       clsAttrs: [
         {
-          Classification: {
-            "Brand": '8',
-            'Length': '0.00',
-            'Mode': 'B10',
-            "Height or thick": '0.00',
-            'width': '0.00',
-            weight: '0.00',
-          }, //分类
+          'Classification': {
+            'Brand':'huawei',
+            'Length':'0.00',
+            'Mode':'B10',
+            'Height or thick':'0.00',
+            'Width':'0.00',
+            'Weight':'0.00',
+          }
         }
       ],
     })
@@ -350,13 +371,8 @@ export default {
         { required: true, message: '请选择装配模式', trigger: 'blur' },
         { min: 1, max: 250, message: 'Length should be 1 to 250', trigger: 'blur' },
       ],
-
-      enableFlag: [
-        { required: true, message: '请输入属性状态', trigger: 'blur' },
-        { min: 1, max: 250, message: 'Length should be 1 to 250', trigger: 'blur' },
-      ],
-      aType: [
-        { required: true, message: '请输入属性类型', trigger: 'blur' },
+      classification: [
+        { required: true, message: '请选择分类', trigger: 'blur' },
         { min: 1, max: 250, message: 'Length should be 1 to 250', trigger: 'blur' },
       ],
     }
@@ -366,6 +382,8 @@ export default {
       // console.log('当前分类', val);
       //获取该分类的详细属性
       getNodeAttr(val);
+
+
     }
 
     // TODO 表单整体校验 + 登录
@@ -375,23 +393,27 @@ export default {
     const addPart = () => {
       console.log(partForm);
       //表单校验
-      // partFormRef.value.validate((valid) => {
-      //   if (valid) {
-      //     //调用api创建
-      //     partapi.create(partForm.source, partForm.branch, partForm.master, partForm.name,
-      //       partForm.partType, partForm.extAttrs, partForm.clsAttrs).then(res => {
-      //         console.log(res);
-      //         if (res.code == 200) {
-      //           ElMessage({ type: 'success', message: '创建成功' });
-      //         } else {
-      //           ElMessage({ type: 'error', message: res.msg });
-      //         }
-      //       })
-      //   } else {
-      //     ElMessage({ type: 'warning', message: '请按规定填写必要字段' });
-      //   }
-      // })
-      //表单置空
+      partFormRef.value.validate((valid) => {
+        if (valid) {
+          //调用api创建
+          partapi.create(partForm.source, partForm.branch, partForm.master, partForm.name,
+            partForm.partType, partForm.extAttrs, partForm.clsAttrs).then(res => {
+              console.log(res);
+              if (res.code == 200) {
+                ElMessage({ type: 'success', message: '创建成功' });
+                //直接重载页面
+                setTimeout(() => {
+                  location.reload();
+                }, 500);
+              } else {
+                ElMessage({ type: 'error', message: res.msg });
+              }
+            })
+        } else {
+          ElMessage({ type: 'warning', message: '请按规定填写必要字段' });
+        }
+      })
+      
     }
     //获取分类
     function getType() {
@@ -432,15 +454,7 @@ export default {
         partapi.queryPart(partId.value, null, curPage.value, pageSize.value).then(res => {
           console.log('获取部件列表数据', res);
           if (res.code == 200) {
-            //遍历列表 只展示主版本
             let list = res.data.resList;
-            let resList = [];
-            for (var i = 0; i < list.length; i++) {
-              if (list[i].id == list[i].master.id) {
-                resList.push(list[i]);
-              }
-            }
-            // partList.data = resList;
             partList.data = list;
             partList.total = res.data.size;
           } else {
@@ -460,25 +474,6 @@ export default {
           }
         })
       }
-
-      partapi.queryPart(partId.value, curPage.value, pageSize.value).then(res => {
-        // console.log('获取部件列表数据', res);
-        if (res.code == 200) {
-          //遍历列表 只展示主版本
-          // let list = res.data.resList;
-          // let resList = [];
-          // for (var i = 0; i < list.length; i++) {
-          //   if (list[i].id == list[i].master.id) {
-          //     resList.push(list[i]);
-          //   }
-          // }
-          partList.data = res.data.resList;
-          // partList.data = list;
-          partList.total = res.data.size;
-        } else {
-          ElMessage({ type: 'error', message: res.msg });
-        }
-      })
     }
 
     //编辑部件信息
@@ -556,10 +551,16 @@ export default {
 
     //查询分类的属性
     function getNodeAttr(val) {
+      console.log('当前分类', val);
+
+      //赋值分类分类id和编码
+      partForm.businessCode = val.businessCode;
+      partForm.extAttrs[0].value = val.id;
       attributeapi.getNodeAttr(val.id).then(res => {
         console.log('获取分类详细信息', res);
         if (res.code == 200) {
-
+          //赋值分类属性
+          
         } else {
           ElMessage({ type: 'error', message: res.msg });
         }
@@ -567,35 +568,49 @@ export default {
     }
 
     //获取Part某个小版本信息
-    function getVersionInfo() {
-      partapi.version().then(res => {
-        console.log('获取小版本信息', res);
-      })
-    }
-
-    //展示part某个小版本信息
-    function showVersionInfo(val) {
-      console.log('当前小版本', val);
+    function getVersionInfo(val) {
+      //获取当前小版本具体信息
       partapi.version(val.master.id, val.version, val.iteration).then(res => {
-        console.log(res);
+        console.log('获取当前小版本具体信息', res);
         if (res.code == 200) {
-
+          //这里返回的是一个列表 很奇怪
+          smallVersion.data = res.data[0];
         } else {
           ElMessage({ type: 'error', message: res.msg });
         }
       })
     }
 
+    //通过自定义按钮实现展开查看分类详细属性
+    const expands = ref([]);
+    //当前展示的小版本
+    const smallVersion = reactive({
+      data: {},
+    });
+    const handleRowClick = (row) => {
+      //如果当前已经展开就收起
+      if (expands.value.includes(row.id)) {
+        expands.value = expands.value.filter((val) => val !== row.id);
+      } else {
+        //实现手风琴模式 一次只能打开一个
+        expands.value = [];
+        expands.value.push(row.id);
+        getVersionInfo(row);
+      }
+
+
+    }
+
 
     return {
       addDialog, partForm, addPart, partList, getPartList, findType, partId, partName, dateUtil
-      , curPage, pageSize, Delete, Edit, Pointer, editDialog, formRules, options, typeOptions, getType, treeProps,
-      nodeClickFun, partFormRef, sourceOptions, patternOptions, editPart, editPartForm,
+      , curPage, pageSize, Delete, Edit, Pointer, editDialog, formRules, options, typeOptions, getType, treeProps, nodeClickFun, partFormRef, sourceOptions, patternOptions, editPart, editPartForm,
       showMode, partVersionList, getVersionList, deleteVersion, handleCurrentChange, handleSizeChange,
-      deletePart, getNodeAttr, getVersionInfo, showVersionInfo
+      deletePart, getNodeAttr, getVersionInfo, handleRowClick, expands, smallVersion
     }
   },
   mounted() {
+    //获取所有分类
     this.getType();
     //获取所有版本列表
   }
