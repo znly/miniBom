@@ -756,10 +756,15 @@ export default {
     function delClassAttrsFunc(val) {
       console.log('删除分类关联属性',val);
       let linkIds = [];
-      attributeapi.deleteClassAttr().then(res => {
+      linkIds.push(val.id);
+      // 待完成todo
+      attributeapi.deleteClassAttr(linkIds).then(res => {
         console.log('删除关联属性', res);
         if (res.code == 200) {
           ElMessage({ type: 'success', message: '删除成功' });
+          setTimeout(() => {
+            location.reload();
+          }, 500);
         } else {
           ElMessage({ type: 'error', message: res.msg });
         }
@@ -794,4 +799,6 @@ export default {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+
+</style>
