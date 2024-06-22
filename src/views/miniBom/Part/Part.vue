@@ -253,9 +253,12 @@
           </div>
 
           <!-- BOMlink展示 -->
-          <div v-show="showMode == 'bom'">
-            <div>
+          <div v-show="showMode == 'bom'" >
+            <div v-if="curBOMLink.data!=null">
 
+            </div>
+            <div v-else style="margin-top:20px">
+              暂无任何数据
             </div>
 
           </div>
@@ -549,11 +552,14 @@ export default {
 
     //删除部件part
     function deletePart(val) {
-      // console.log('当前部件', val);
-      // console.log('当前用户', store.state.user);
+      console.log('删除部件',val);
+      if(store.state.user==null){
+        ElMessage({type:'error',message:'请先登录'});
+        return;
+      }
       //修改人获取当前用户的id
       partapi.deletePart(val.master.id, store.state.user.id).then(res => {
-        console.log(res);
+        console.log('删除部件part',res);
         if (res.code == 200) {
           ElMessage({ type: 'success', message: '删除成功' })
           //刷新页面
@@ -623,12 +629,17 @@ export default {
 
     //BOMlink相关
 
+    //当前展示的BOMlink
+    const curBOMLink = reactive({
+      data:{},
+    })
 
     //获取bomlink
     function getBOMLinks(val) {
       bomapi.getBOMlinks(val.id).then(res => {
         if (res.code == 200) {
           console.log('获取bomlink',res);
+          curBOMLink.data = res.data;
         } else {
           ElMessage({ type: 'error', message: res.msg });
         }
@@ -642,7 +653,7 @@ export default {
       , curPage, pageSize, Delete, Edit, Pointer, editDialog, formRules, options, typeOptions, getType, treeProps, nodeClickFun, partFormRef, sourceOptions, patternOptions,
       editPart, editPartForm, showMode, partVersionList, getVersionList, deleteVersion,
       handleCurrentChange, handleSizeChange, deletePart, getNodeAttr, getVersionInfo, handleRowClick,
-      expands, smallVersion, getBOMLinks,
+      expands, smallVersion, getBOMLinks,curBOMLink
     }
   },
   mounted() {

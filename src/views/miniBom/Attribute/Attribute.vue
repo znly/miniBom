@@ -16,13 +16,13 @@
         <el-button type="primary" @click="pageQuery">查询</el-button>
       </div>
 
-      <!-- 属性数据表格展示 -->
+      <!-- 数据表格展示 属性和分类共用-->
       <div>
         <el-table :data="tableList.data" style="width: 100%;margin-top: 10px;" empty-text="暂无相关数据" border
           @select="handleSelectionChange" ref="multipleTableRef" height="500px">
           <el-table-column type="selection" width="55" />
-
-          <el-table-column fixed prop="businessCode" :label="findType == 'attribute' ? '编码' : '分类码'" width="120">
+          <el-table-column prop="id" label="id" width="200" />
+          <el-table-column prop="businessCode" :label="findType == 'attribute' ? '编码' : '分类码'" width="120">
             <template #default="scope">
               <span v-if="scope.row.className == 'ClassificationNode'" style="cursor: pointer;color:royalblue"
                 @click="showClassInfo(scope.row)">
@@ -70,7 +70,7 @@
           </el-table-column>
 
 
-          <el-table-column label="属性所在分类" width="120" >
+          <el-table-column label="属性所在分类" width="120">
             <template #default="scope">
               <el-button size="small" @click="showCategory(scope.$index, scope.row)" :disabled="curType == 'class'">
                 <el-icon>
@@ -103,7 +103,7 @@
         </el-table>
 
         <div style="margin-top: 10px;">
-          <el-button type="primary" @click="findType == 'attribute'?addDialog = true:addClassDialog = true">
+          <el-button type="primary" @click="findType == 'attribute' ? addDialog = true : addClassDialog = true">
             <span>
               {{ findType == 'attribute' ? '创建属性' : '创建分类' }}
             </span>
@@ -161,10 +161,10 @@
         <el-form ref="attributeFormRef" style="max-width: 500px" :model="selectAttribute.data" :rules="formRules"
           label-width="auto" class="demo-ruleForm" status-icon>
           <el-form-item label="中文名称" prop="name">
-            <el-input v-model="selectAttribute.data.name" disabled/>
+            <el-input v-model="selectAttribute.data.name" disabled />
           </el-form-item>
           <el-form-item label="英文名称" prop="nameEn">
-            <el-input v-model="selectAttribute.data.nameEn" disabled/>
+            <el-input v-model="selectAttribute.data.nameEn" disabled />
           </el-form-item>
           <el-form-item label="中文描述" prop="description">
             <el-input v-model="selectAttribute.data.description" />
@@ -190,8 +190,8 @@
     <!-- 创建分类表单 -->
     <el-dialog v-model="addClassDialog" title="创建分类" draggable>
       <div>
-        <el-form ref="classFormRef  " style="max-width: 500px" :model="classForm" :rules="formRules"
-          label-width="auto" class="demo-ruleForm" status-icon>
+        <el-form ref="classFormRef  " style="max-width: 500px" :model="classForm" :rules="formRules" label-width="auto"
+          class="demo-ruleForm" status-icon>
           <el-form-item label="中文名称" prop="name">
             <el-input v-model="classForm.name" />
           </el-form-item>
@@ -235,15 +235,6 @@
               <el-radio label="false">否</el-radio>
             </el-radio-group>
           </el-form-item>
-<!--          <el-form-item label="数据类型" prop="type">
-            <el-input v-model="selectClass.data.type" disabled />
-          </el-form-item>
-          <el-form-item label="属性状态" prop="disableFlag">
-            <el-input v-model="selectClass.data.disableFlag" disabled />
-          </el-form-item>
-          <el-form-item label="属性类型" prop="aType">
-            <el-input v-model="selectClass.data.aType" disabled />
-          </el-form-item>-->
         </el-form>
       </div>
       <div>
@@ -255,42 +246,40 @@
     <!-- 添加分类表单 -->
     <el-dialog v-model="addClassDialog" title="添加分类" draggable>
       <div>
-        <el-form ref="attributeFormRef" style="max-width: 500px" :model="ClassForm" :rules="classFormRules"
-                 label-width="auto" class="demo-ruleForm" status-icon>
+        <el-form ref="attributeFormRef" style="max-width: 500px" :model="classForm" :rules="classFormRules"
+          label-width="auto" class="demo-ruleForm" status-icon>
           <el-form-item label="商业码" prop="businessCode">
-            <el-input v-model="ClassForm.businessCode" />
+            <el-input v-model="classForm.businessCode" />
           </el-form-item>
           <el-form-item label="中文名称" prop="name">
-            <el-input v-model="ClassForm.name" />
+            <el-input v-model="classForm.name" />
           </el-form-item>
           <el-form-item label="英文名称" prop="nameEn">
-            <el-input v-model="ClassForm.nameEn" />
+            <el-input v-model="classForm.nameEn" />
           </el-form-item>
           <el-form-item label="中文描述" prop="description">
-            <el-input v-model="ClassForm.description" />
+            <el-input v-model="classForm.description" />
           </el-form-item>
           <el-form-item label="是否实例化" prop="instantiable">
-            <el-radio-group v-model="ClassForm.instantiable">
+            <el-radio-group v-model="classForm.instantiable">
               <el-radio label="true">是</el-radio>
               <el-radio label="false">否</el-radio>
             </el-radio-group>
           </el-form-item>
-          <el-form-item label="是否生效" prop="disableFlag">
-            <el-radio-group v-model="ClassForm.disableFlag">
+          <!-- <el-form-item label="是否生效" prop="disableFlag">
+            <el-radio-group v-model="classForm.disableFlag">
               <el-radio label="false">是</el-radio>
               <el-radio label="true">否</el-radio>
             </el-radio-group>
           </el-form-item>
           <el-form-item label="父节点" prop="parentNode.id">
-            <!-- <el-input v-model="partForm.type" /> -->
-            <el-tree-select v-model="ClassForm.parentNode.id" :data="typeOptions.data" render-after-expand="false" accordion
-                            :props="treeProps" style="width: 240px" @node-click="nodeClickFun" placeholder="请选择分类">
+            <el-tree-select v-model="ClassForm.parentNode.id" :data="typeOptions.data" render-after-expand="false"
+              accordion :props="treeProps" style="width: 240px" @node-click="nodeClickFun" placeholder="请选择分类">
               <template #default="{ data: { name } }">
                 {{ name }}
-                <!-- <span style="color: gray">(suffix)</span> -->
               </template>
             </el-tree-select>
-          </el-form-item>
+          </el-form-item> -->
         </el-form>
       </div>
       <div>
@@ -300,7 +289,7 @@
     </el-dialog>
 
     <!-- 展示分类详细信息 -->
-    <el-dialog title="分类详细信息" v-model="classInfoDialog" draggable style="margin-top: 10px;">
+    <el-dialog title="分类详细信息" v-model="classInfoDialog" draggable style="margin-top: 10px;" @close="activeNames = ''">
       <div>
         <el-collapse v-model="activeNames" @change="handleActiveChange">
           <el-collapse-item title="分类信息" name="1">
@@ -322,9 +311,9 @@
                 </span>{{ curClass.data.nameEn }}
               </div>
               <div>
-                <span style="font-weight: bold;">
-                  分类父节点:
-                </span>
+                <!-- <span style="font-weight: bold;">
+                  分类父节点:{{curClass.data}}
+                </span> -->
               </div>
             </div>
 
@@ -333,7 +322,24 @@
             <el-table :data="curClass.attrList" empty-text="暂无属性">
               <el-table-column label="中文名称" prop="name"></el-table-column>
               <el-table-column label="英文名称" prop="nameEn"></el-table-column>
+              <el-table-column>
+                <template #default="scope">
+                  <el-popconfirm title="确认是否需要删除该属性?'"
+                    @confirm="delClassAttrsFunc(scope.row)">
+                    <template #reference>
+                      <el-button type="danger" :icon="Delete" circle />
+                    </template>
+                  </el-popconfirm>
+                </template>
+              </el-table-column>
             </el-table>
+            <!-- 添加关联属性 -->
+            <el-button type="primary" @click="addClassAttrDia = true">添加属性</el-button>
+            <el-dialog title="添加属性" v-model="addClassAttrDia">
+              <el-input placeholder="请输入属性编码" v-model="inputAttrId" />
+              <el-button @click="addClassAttrs(curClass.data.id)" type="primary"
+                :disabled="inputAttrId == ''">确定</el-button>
+            </el-dialog>
           </el-collapse-item>
         </el-collapse>
       </div>
@@ -448,32 +454,7 @@ export default {
       ],
     }
 
-    const classFormRules = {
-      name: [
-        { required: true, message: '请输入中文名称', trigger: 'blur' },
-        { min: 1, max: 250, message: 'Length should be 1 to 250', trigger: 'blur' },
-      ],
-      nameEn: [
-        { required: true, message: '请输入英文名称', trigger: 'blur' },
-        { min: 1, max: 250, message: 'Length should be 1 to 250', trigger: 'blur' },
-      ],
-      description: [
-        { required: true, message: '请输入中文描述', trigger: 'blur' },
-        { min: 1, max: 250, message: 'Length should be 1 to 250', trigger: 'blur' },
-      ],
-      disableFlag: [
-        { required: true, message: '请选择是否生效', trigger: 'blur' },
-        { min: 1, max: 250, message: 'Length should be 1 to 250', trigger: 'blur' },
-      ],
-      instantiable: [
-        { required: true, message: '请选择是否实例化', trigger: 'blur' },
-        { min: 1, max: 250, message: 'Length should be 1 to 250', trigger: 'blur' },
-      ],
-      descriptionEn: [
-        { required: true, message: '请输入英文描述', trigger: 'blur' },
-        { min: 1, max: 250, message: 'Length should be 1 to 250', trigger: 'blur' },
-      ],
-    }
+
 
 
     //查询分类名称
@@ -521,10 +502,54 @@ export default {
         }
       })
     }
+
+
+
+    //添加分类弹窗
+    const addClassDialog = ref(false);
+
+    //添加分类表单
+    const classForm = reactive({
+      businessCode: '',
+      name: '',
+      nameEn: '',
+      description: '',
+      descriptionEn: '',
+      instantiable: '',
+
+    })
+
+    const classFormRules = {
+      name: [
+        { required: true, message: '请输入中文名称', trigger: 'blur' },
+        { min: 1, max: 250, message: 'Length should be 1 to 250', trigger: 'blur' },
+      ],
+      nameEn: [
+        { required: true, message: '请输入英文名称', trigger: 'blur' },
+        { min: 1, max: 250, message: 'Length should be 1 to 250', trigger: 'blur' },
+      ],
+      description: [
+        { required: true, message: '请输入中文描述', trigger: 'blur' },
+        { min: 1, max: 250, message: 'Length should be 1 to 250', trigger: 'blur' },
+      ],
+      disableFlag: [
+        { required: true, message: '请选择是否生效', trigger: 'blur' },
+        { min: 1, max: 250, message: 'Length should be 1 to 250', trigger: 'blur' },
+      ],
+      instantiable: [
+        { required: true, message: '请选择是否实例化', trigger: 'blur' },
+        { min: 1, max: 250, message: 'Length should be 1 to 250', trigger: 'blur' },
+      ],
+      descriptionEn: [
+        { required: true, message: '请输入英文描述', trigger: 'blur' },
+        { min: 1, max: 250, message: 'Length should be 1 to 250', trigger: 'blur' },
+      ],
+    }
+    const classFormRef = ref(null);
     //添加分类
-    function addClass(){
-      classFormRef.value.validate((valid)=>{
-        if(valid){
+    function addClass() {
+      classFormRef.value.validate((valid) => {
+        if (valid) {
           //请求api添加分类
 
         }
@@ -537,7 +562,7 @@ export default {
     //分页查询属性值
     function pageQueryAttribute() {
       attributeapi.pageQueryAttribute(attributeName.value, curPage.value, pageSize.value).then(res => {
-        // console.log(res);
+        console.log('分页查询属性', res);
         if (res.code == 200) {
           // attributeList.data = res.data.resultList;
           // attributeList.total = res.data.total;
@@ -630,15 +655,17 @@ export default {
     }
 
 
+
+
     //当前分类信息
     const curClass = reactive({
       data: {},
       attrList: [],//属性列表
     });
-    //展示分类详细信息
+    //展示分类详细信息属性
     function showClassInfo(val) {
       attributeapi.getNodeAttr(val.id).then(res => {
-        console.log('获取分类详细信息', res);
+        console.log('获取分类详细信息属性', res);
         if (res.code == 200) {
           //展示弹窗
           classInfoDialog.value = true;
@@ -673,15 +700,27 @@ export default {
 
 
     //切换查询选择
-    function handleSwitch(){
+    function handleSwitch() {
       tableList.data = null;
       tableList.total = 0;
     }
 
     //编辑分类信息
-    function editClass(){
+    function editClass() {
+      attributeapi.updateClass(selectClass.data.description, selectClass.data.descriptionEn,
+        selectClass.data.id, selectClass.data.name, selectClass.data.nameEn).then(res => {
+          console.log('编辑分类信息', res);
+          if (res.code == 200) {
+            ElMessage({ type: 'success', message: '更新成功' });
+            editClassDialog.value = false;
+          } else {
+            ElMessage({ type: 'error', message: res.msg });
+          }
 
+        })
     }
+
+
     function getType() {
       attributeapi.treeQueryClass().then(res => {
         //console.log('树形获取分类', res);
@@ -694,12 +733,48 @@ export default {
       })
     }
 
+    //添加关联属性弹窗
+    const addClassAttrDia = ref(false);
+    //输入的要关联的属性id
+    const inputAttrId = ref('');
+    //分类添加关联属性
+    function addClassAttrs(id) {
+      //构造成数组传入
+      let attrIds = [];
+      attrIds.push(inputAttrId.value);
+      attributeapi.addAttr(attrIds, id).then(res => {
+        console.log('添加关联属性', res);
+        if (res.code == 200) {
+          ElMessage({ type: 'success', message: '添加成功' });
+          addClassAttrDia.value = false;
+        } else {
+          ElMessage({ type: 'error', message: res.msg });
+        }
+      })
+    }
+    //分类删除关联属性
+    function delClassAttrsFunc(val) {
+      console.log('删除分类关联属性',val);
+      let linkIds = [];
+      attributeapi.deleteClassAttr().then(res => {
+        console.log('删除关联属性', res);
+        if (res.code == 200) {
+          ElMessage({ type: 'success', message: '删除成功' });
+        } else {
+          ElMessage({ type: 'error', message: res.msg });
+        }
+      })
+    }
+
+
     return {
       attributeName, curPage, pageSize, pageQueryAttribute, attributeList, dateUtil, handleSelectionChange, selectList,
       handleSizeChange, handleCurrentChange, showCategory, findType, addDialog, attributeForm, formRules,
       addattribute, attributeFormRef, Edit, Delete, editAttribute, editDialog, selectAttribute, pageQuery,
       className, classList, tableList, curType, allList, showClassInfo, classInfoDialog, activeNames, handleActiveChange,
-      curClass, editClassDialog, showEditDialog,selectClass,editClass,getType,handleSwitch
+      curClass, editClassDialog, showEditDialog, selectClass, editClass, getType, handleSwitch,
+      addClassAttrs, inputAttrId, addClassAttrDia, addClassDialog, classForm, classFormRules
+      , addClass,delClassAttrsFunc
     }
   },
   created() {
@@ -719,6 +794,4 @@ export default {
 }
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>
