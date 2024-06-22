@@ -79,7 +79,7 @@
               </span>
             </template>
           </el-table-column>-->
-          <el-table-column label="属性所在分类" width="120" v-if="findType == 'attribute'">
+          <el-table-column label="属性所在分类" width="120" >
             <template #default="scope">
               <el-button size="small" @click="showCategory(scope.$index, scope.row)" :disabled="curType == 'class'">
                 <el-icon>
@@ -101,7 +101,7 @@
           <el-table-column fixed="right" label="操作" width="120">
             <template #default="scope">
               <el-button type="primary" :icon="Edit" circle @click="showEditDialog(scope.row)" />
-              <el-popconfirm :title="curType == 'class' ? '确认是否需要删除分E类?' : '确认是否需要删除属性?'"
+              <el-popconfirm :title="curType == 'class' ? '确认是否需要删除分类?' : '确认是否需要删除属性?'"
                 @confirm="deleteAttribute(scope.row, 'attribute')">
                 <template #reference>
                   <el-button type="danger" :icon="Delete" circle />
@@ -417,8 +417,6 @@ export default {
     })
     //添加属性弹窗
     const addDialog = ref(false);
-    //添加分类弹窗
-    const addClassDialog = ref(false);
     //编辑属性弹窗
     const editDialog = ref(false);
     //编辑分类弹窗
@@ -434,19 +432,6 @@ export default {
       type: '',
       enableFlag: '',
       aType: '扩展属性'
-    })
-    //添加分类表单
-    const ClassForm = reactive({
-      //中英文名称和中英文描述
-      businessCode: '',
-      name: '',
-      nameEn: '',
-      description: '',
-      disableFlag: '',
-      instantiable: '',
-      parentNode:{
-        id: ''
-      }
     })
     //选中要编辑的属性
     const selectAttribute = reactive({
@@ -696,8 +681,7 @@ export default {
     const selectClass = reactive({
       data: {}
     });
-
-    //显示编辑弹窗 分类和属性共用
+    //显示编辑弹窗
     function showEditDialog(val) {
       if (val.className == "ClassificationNode") {
         editClassDialog.value = true;
@@ -716,61 +700,15 @@ export default {
 
     //编辑分类信息
     function editClass(){
-      //console.log(selectClass.data)
-      attributeapi.updateClassificationNode(selectClass.data.id, selectClass.data.name,selectClass.data.nameEn,selectClass.data.description,
-          selectClass.data.descriptionEn,selectClass.data.instantiable
-      ).then(res => {
-        if (res.code == 200) {
-          ElMessage({ type: 'success', message: '修改成功' });
-          //关闭修改弹窗
-          editClassDialog.value = false;
-          //可以刷新页面重新获取数据但没必要
-          // setTimeout(() => {
-          //   location.reload();
-          // }, 500);
-        } else {
-          ElMessage({ type: 'error', message: res.msg });
-        }
-      })
-    }
-    function getType() {
-      attributeapi.treeQueryClass().then(res => {
-        //console.log('树形获取分类', res);
-        if (res.code == 200) {
-          typeOptions.data = res.data;
-        } else {
-          ElMessage({ type: 'error', message: res.msg });
-        }
-
-      })
-    }
-
-    function nodeClickFun(val) {
-      //获取该分类的详细属性
-      getNodeAttr(val);
 
     }
-
-    function getNodeAttr(val) {
-      attributeapi.getNodeAttr(val.id).then(res => {
-        console.log('获取分类详细信息', res);
-        if (res.code == 200) {
-
-        } else {
-          ElMessage({ type: 'error', message: res.msg });
-        }
-      })
-    }
-
-
 
     return {
       attributeName, curPage, pageSize, pageQueryAttribute, attributeList, dateUtil, handleSelectionChange, selectList,
       handleSizeChange, handleCurrentChange, showCategory, findType, addDialog, attributeForm, formRules,
       addattribute, attributeFormRef, Edit, Delete, editAttribute, editDialog, selectAttribute, pageQuery,
       className, classList, tableList, curType, allList, showClassInfo, classInfoDialog, activeNames, handleActiveChange,
-      curClass, editClassDialog, showEditDialog,selectClass,editClass,handleSwitch,addClassDialog,ClassForm,addClass,classFormRules,
-      getType,typeOptions,treeProps,nodeClickFun,getNodeAttr
+      curClass, editClassDialog, showEditDialog,selectClass,editClass
     }
   },
   created() {
