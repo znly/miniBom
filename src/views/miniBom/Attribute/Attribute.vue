@@ -69,16 +69,7 @@
             </template>
           </el-table-column>
 
-<!--          <el-table-column prop="instantiable" label="是否实例化" width="100" v-if="findType == 'class'">
-            <template #default="scope">
-              <span v-if="scope.row.instantiable == true">
-                是
-              </span>
-              <span v-else>
-                否
-              </span>
-            </template>
-          </el-table-column>-->
+
           <el-table-column label="属性所在分类" width="120" >
             <template #default="scope">
               <el-button size="small" @click="showCategory(scope.$index, scope.row)" :disabled="curType == 'class'">
@@ -187,9 +178,7 @@
           <el-form-item label="属性状态" prop="disableFlag">
             <el-input v-model="selectAttribute.data.disableFlag" disabled />
           </el-form-item>
-<!--          <el-form-item label="属性类型" prop="aType">
-            <el-input v-model="selectAttribute.data.aType" disabled />
-          </el-form-item>-->
+
         </el-form>
       </div>
       <div>
@@ -215,16 +204,6 @@
           <el-form-item label="英文描述" prop="descriptionEn">
             <el-input v-model="classForm.descriptionEn" />
           </el-form-item>
-
-          <!-- <el-form-item label="属性状态" prop="enableFlag">
-            <el-select v-model="attributeForm.enableFlag" placeholder="请选择" size="large" style="width: 240px">
-              <el-option label="有效" value="true" />
-              <el-option label="失效" value="false" />
-            </el-select>
-          </el-form-item>
-          <el-form-item label="属性类型" prop="aType">
-            <el-input v-model="attributeForm.aType" />
-          </el-form-item> -->
         </el-form>
       </div>
       <div>
@@ -692,6 +671,7 @@ export default {
       }
     }
 
+
     //切换查询选择
     function handleSwitch(){
       tableList.data = null;
@@ -702,13 +682,24 @@ export default {
     function editClass(){
 
     }
+    function getType() {
+      attributeapi.treeQueryClass().then(res => {
+        //console.log('树形获取分类', res);
+        if (res.code == 200) {
+          typeOptions.data = res.data;
+        } else {
+          ElMessage({ type: 'error', message: res.msg });
+        }
+
+      })
+    }
 
     return {
       attributeName, curPage, pageSize, pageQueryAttribute, attributeList, dateUtil, handleSelectionChange, selectList,
       handleSizeChange, handleCurrentChange, showCategory, findType, addDialog, attributeForm, formRules,
       addattribute, attributeFormRef, Edit, Delete, editAttribute, editDialog, selectAttribute, pageQuery,
       className, classList, tableList, curType, allList, showClassInfo, classInfoDialog, activeNames, handleActiveChange,
-      curClass, editClassDialog, showEditDialog,selectClass,editClass
+      curClass, editClassDialog, showEditDialog,selectClass,editClass,getType,handleSwitch
     }
   },
   created() {
