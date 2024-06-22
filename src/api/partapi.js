@@ -38,7 +38,7 @@ export default {
       data: { id, name, master, description, source, partType },
     });
   },
-  //更新部件 直接传入一个部件
+  //更新部件 修改传入的参数 上面那个读不到master更新失败
   updatePart2(name,master,branch,source, partType){
     return request({
       url: "/idme/part/update",

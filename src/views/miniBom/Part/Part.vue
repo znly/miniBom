@@ -29,7 +29,7 @@
           <el-table-column prop="iteration" label="迭代版本号" width="120" />
           <el-table-column prop="description" label="描述" width="120" />
           <el-table-column prop="" label="分类编码" width="120" />
-          <el-table-column prop="workingState" label="工作状态" width="120"/>
+          <el-table-column prop="workingState" label="工作状态" width="120" />
           <el-table-column label="创建时间" width="200">
             <template #default="scope">
               {{ dateUtil.transformDate(scope.row.createTime) }}
@@ -148,7 +148,8 @@
           <div>
             <el-radio-group v-model="showMode" size="large">
               <el-radio-button label="基本属性" value="basic" />
-              <el-radio-button label="BOM清单" value="bom" />
+              <!-- 点击时获取BOMlinks -->
+              <el-radio-button label="BOM清单" value="bom" @click="getBOMLinks(editPartForm.data)" />
               <el-radio-button label="版本管理" value="version" @click="getVersionList" />
             </el-radio-group>
           </div>
@@ -251,6 +252,14 @@
             </el-table>
           </div>
 
+          <!-- BOMlink展示 -->
+          <div v-show="showMode == 'bom'">
+            <div>
+
+            </div>
+
+          </div>
+
           <div style="margin-top: 20px;">
             <el-button type="primary" @click="editPart" v-show="showMode == 'basic'">确定</el-button>
             <el-button type="danger" @click="editDialog = false">取消</el-button>
@@ -282,6 +291,7 @@ import {
 } from '@element-plus/icons-vue'
 import attributeapi from '@/api/attributeapi';
 import store from '@/store';
+import bomapi from '@/api/bomapi';
 export default {
   name: 'part',
   setup() {
@@ -481,24 +491,17 @@ export default {
     //编辑部件信息
     function editPart() {
       console.log('编辑部件信息', editPartForm.data);
-      // partapi.updatePart(editPartForm.data.id, editPartForm.data.name, editPartForm.data.master,
-      //   editPartForm.data.description, partForm.source, partForm.partType).then(res => {
-      //     console.log('编辑部件返回结果', res);
-      //     if (res.code == 200) {
-      //       ElMessage({ type: 'success', message: '修改成功' });
-      //     } else {
-      //       ElMessage({ type: 'error', message: res.msg });
-      //     }
-      //   })
-      partapi.updatePart2(editPartForm.data.name,editPartForm.data.master,editPartForm.data.branch,
-      partForm.source,partForm.partType).then(res=>{
-        console.log('编辑部件返回结果', res);
+      partapi.updatePart2(editPartForm.data.name, editPartForm.data.master, editPartForm.data.branch,
+        partForm.source, partForm.partType).then(res => {
+          console.log('编辑部件返回结果', res);
           if (res.code == 200) {
             ElMessage({ type: 'success', message: '修改成功' });
+            //关闭弹窗
+            editDialog.value = false;
           } else {
             ElMessage({ type: 'error', message: res.msg });
           }
-      })
+        })
     }
 
     //处理当前页面页数变化
@@ -540,7 +543,7 @@ export default {
         } else {
           ElMessage({ type: 'error', message: res.msg });
         }
-        
+
       })
     }
 
@@ -605,12 +608,12 @@ export default {
       if (expands.value.includes(row.id)) {
         expands.value = expands.value.filter((val) => val !== row.id);
       } else {
-        
+
         //先获取版本信息
         getVersionInfo(row);
         //实现手风琴模式 一次只能打开一个
         expands.value = [];
-        expands.value.push(row.id); 
+        expands.value.push(row.id);
       }
     }
 
@@ -618,11 +621,28 @@ export default {
 
 
 
+    //BOMlink相关
+
+
+    //获取bomlink
+    function getBOMLinks(val) {
+      bomapi.getBOMlinks(val.id).then(res => {
+        if (res.code == 200) {
+          console.log('获取bomlink',res);
+        } else {
+          ElMessage({ type: 'error', message: res.msg });
+        }
+      })
+    }
+
+
+
     return {
       addDialog, partForm, addPart, partList, getPartList, findType, partId, partName, dateUtil
-      , curPage, pageSize, Delete, Edit, Pointer, editDialog, formRules, options, typeOptions, getType, treeProps, nodeClickFun, partFormRef, sourceOptions, patternOptions, editPart, editPartForm,
-      showMode, partVersionList, getVersionList, deleteVersion, handleCurrentChange, handleSizeChange,
-      deletePart, getNodeAttr, getVersionInfo, handleRowClick, expands, smallVersion
+      , curPage, pageSize, Delete, Edit, Pointer, editDialog, formRules, options, typeOptions, getType, treeProps, nodeClickFun, partFormRef, sourceOptions, patternOptions,
+      editPart, editPartForm, showMode, partVersionList, getVersionList, deleteVersion,
+      handleCurrentChange, handleSizeChange, deletePart, getNodeAttr, getVersionInfo, handleRowClick,
+      expands, smallVersion, getBOMLinks,
     }
   },
   mounted() {
@@ -634,4 +654,4 @@ export default {
 }
 </script>
 
-<style></style>
+<style scoped></style>
