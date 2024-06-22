@@ -30,93 +30,92 @@ export default {
     });
   },
   //更新属性
-  updateAttr(id,type,description,descriptionEn){
+  updateAttr(id, type, description, descriptionEn) {
     return request({
-      url:'/idme/attribute/update',
-      method:'post',
-      data:{
-        id,type,description,descriptionEn
-      }
-    })
+      url: "/idme/attribute/update",
+      method: "post",
+      data: {
+        id,
+        type,
+        description,
+        descriptionEn,
+      },
+    });
   },
 
   //删除属性
-  deleteAttr(id){
+  deleteAttr(id) {
     return request({
-      url:'/idme/attribute/delete/'+id,
-      method:'delete'
-    })
+      url: "/idme/attribute/delete/" + id,
+      method: "delete",
+    });
   },
-
-
-
-
-
 
   // ----------分类相关api---------
 
   //分页查询分类节点
-  pageQueryClass(name,curPage,pageSize){
+  pageQueryClass(name, curPage, pageSize) {
     return request({
-        url:'/idme/classification/page',
-        method:'post',
-        data:{name,curPage,pageSize}
-    })
+      url: "/idme/classification/page",
+      method: "post",
+      data: { name, curPage, pageSize },
+    });
   },
   //树状查询分类
-  treeQueryClass(){
+  treeQueryClass() {
     return request({
-      url:'/idme/classification/tree',
-      method:'get'
-    })
+      url: "/idme/classification/tree",
+      method: "get",
+    });
   },
   //删除分类
-  deleteClass(id){
+  deleteClass(id) {
     return request({
-      url:'/idme/classification/delete/'+id,
-      method:'delete'
-    })
+      url: "/idme/classification/delete/" + id,
+      method: "delete",
+    });
   },
+
   //删除分类属性
-  deleteAttr(linkIds){
+  deleteClassAttr(linkIds) {
     return request({
-      url:'/idme/classification/deleteAttr',
-      method:'delete',
-      data:{linkIds}
-    })
+      url: "/idme/classification/deleteAttr",
+      method: "delete",
+      data: { linkIds },
+    });
   },
 
   //获取分类详细信息
-  getNodeAttr(id){
+  getNodeAttr(id) {
     return request({
-      url:'/idme/classification/getAttr/'+id
-    })
+      url: "/idme/classification/getAttr/" + id,
+    });
   },
 
   //更新分类
-  updateClass(){
+  updateClass(description,descriptionEn,id,name,nameEn) {
     return request({
-      url:'/idme/classification/update',
-      method:'post',
-      data:{}
-    })
+      url: "/idme/classification/update",
+      method: "post",
+      data: { description,descriptionEn,id,name,nameEn },
+    });
   },
 
   //增加分类关联属性
-  addAttr(attrIds,holderId){
+  addAttr(attrIds, holderId) {
     return request({
-      url:'/idme/classification/addAttr',
-      method:'post',
-      data:{attrIds,holderId}
-    })
+      url: "/idme/classification/addAttr",
+      method: "post",
+      data: { attrIds, holderId },
+    });
   },
 
   //创建分类
-  createClass(name,nameEn,description,descriptionEn){
+  createClass(name, nameEn, description, descriptionEn) {
     return request({
-      url:'/idme/classification/create',
-      method:'post',
-      data:{name,nameEn,description,descriptionEn}
-    })
-  }
+      url: "/idme/classification/create",
+      method: "post",
+      data: { name, nameEn, description, descriptionEn },
+    });
+  },
 };
