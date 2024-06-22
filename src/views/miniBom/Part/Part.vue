@@ -172,7 +172,7 @@
                 </el-select>
               </el-form-item>
               <el-form-item label="装配模式" prop="partType">
-                <el-select v-model="editPartForm.data.partType" placeholder="请选择装配模式" style="width: 240px">
+                <el-select v-model="partForm.partType" placeholder="请选择装配模式" style="width: 240px">
                   <el-option v-for="(item, key) in patternOptions" :key="key" :label="item" :value="item" />
                 </el-select>
               </el-form-item>
@@ -294,11 +294,11 @@ export default {
     })
     //来源选项
     const sourceOptions = reactive([
-      'Make', 'Buy', '购买-单一供应源'
+      'Make', 'Buy', 'Buy_SingleSource'
     ])
     //装配模式选项
     const patternOptions = reactive([
-      'Separable', 'Inseparable', '零件'
+      'Separable', 'Inseparable', 'Part'
     ])
 
     //部件版本列表
@@ -342,12 +342,12 @@ export default {
       clsAttrs: [
         {
           'Classification': {
-            'Brand':'huawei',
-            'Length':'0.00',
-            'Mode':'B10',
-            'Height or thick':'0.00',
-            'Width':'0.00',
-            'Weight':'0.00',
+            'Brand': 'huawei',
+            'Length': '0.00',
+            'Mode': 'B10',
+            'Height or thick': '0.00',
+            'Width': '0.00',
+            'Weight': '0.00',
           }
         }
       ],
@@ -413,7 +413,7 @@ export default {
           ElMessage({ type: 'warning', message: '请按规定填写必要字段' });
         }
       })
-      
+
     }
     //获取分类
     function getType() {
@@ -460,18 +460,21 @@ export default {
           } else {
             ElMessage({ type: 'error', message: res.msg });
           }
+        }, error => {
+          ElMessage({ type: 'error', message: error.message });
         })
       } else {
         partapi.queryPart(null, partName.value, curPage.value, pageSize.value).then(res => {
           console.log('获取部件列表数据', res);
           if (res.code == 200) {
-            //遍历列表 只展示主版本
             let list = res.data.resList;
             partList.data = list;
             partList.total = res.data.size;
           } else {
             ElMessage({ type: 'error', message: res.msg });
           }
+        }, error => {
+          ElMessage({ type: 'error', message: error.message });
         })
       }
     }
@@ -479,13 +482,17 @@ export default {
     //编辑部件信息
     function editPart() {
       console.log('编辑部件信息', editPartForm.data);
-      // partapi.updatePart(editPartForm.data.name).then(res=>{
-      //   if(res.code==200){
+      partapi.updatePart(editPartForm.data.id, editPartForm.data.name, editPartForm.data.master,
+        editPartForm.data.description, partForm.source, partForm.partType).then(res => {
+          console.log('编辑部件返回结果', res);
+          if (res.code == 200) {
 
-      //   }else{
+            ElMessage({ type: 'success', message: '修改成功' });
+          } else {
+            ElMessage({ type: 'error', message: res.msg });
+          }
 
-      //   }
-      // })
+        })
     }
 
     //处理当前页面页数变化
@@ -560,7 +567,7 @@ export default {
         console.log('获取分类详细信息', res);
         if (res.code == 200) {
           //赋值分类属性
-          
+
         } else {
           ElMessage({ type: 'error', message: res.msg });
         }
