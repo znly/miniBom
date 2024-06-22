@@ -31,13 +31,23 @@ export default {
     });
   },
   //更新部件
-  updatePart(id, name, creator, modifier, description, source, partType) {
+  updatePart(id, name, master, description, source, partType) {
     return request({
       url: "/idme/part/update",
       method: "post",
-      data: { id, name, creator, modifier, description, source, partType },
+      data: { id, name, master, description, source, partType },
     });
   },
+  //更新部件 直接传入一个部件
+  updatePart2(name,master,branch,source, partType){
+    return request({
+      url: "/idme/part/update",
+      method: "post",
+      data: { name,master,branch,source, partType },
+    });
+  },
+
+
   //获取部件的所有版本
   allVersion(masterId, version, curPage, pageSize) {
     return request({
@@ -72,4 +82,5 @@ export default {
       method:'post',
     })
   }
+
 };

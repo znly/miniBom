@@ -29,6 +29,7 @@
           <el-table-column prop="iteration" label="迭代版本号" width="120" />
           <el-table-column prop="description" label="描述" width="120" />
           <el-table-column prop="" label="分类编码" width="120" />
+          <el-table-column prop="workingState" label="工作状态" width="120"/>
           <el-table-column label="创建时间" width="200">
             <template #default="scope">
               {{ dateUtil.transformDate(scope.row.createTime) }}
@@ -211,7 +212,7 @@
             <el-table :data="partVersionList.data" ref="expandTable" row-key="id" :expand-row-keys="expands"
               :header-cell-style="{ background: '#EFF3F5', color: '#6B7275' }">
               <el-table-column type="expand" width="1">
-                <template #default="scope">
+                <template #default>
                   <div>
                     <!-- <div>{{ smallVersion.data}}</div> -->
                     <div>创建时间:{{ dateUtil.transformDate(smallVersion.data.createTime) }}</div>
@@ -382,8 +383,6 @@ export default {
       // console.log('当前分类', val);
       //获取该分类的详细属性
       getNodeAttr(val);
-
-
     }
 
     // TODO 表单整体校验 + 登录
@@ -482,17 +481,24 @@ export default {
     //编辑部件信息
     function editPart() {
       console.log('编辑部件信息', editPartForm.data);
-      partapi.updatePart(editPartForm.data.id, editPartForm.data.name, editPartForm.data.master,
-        editPartForm.data.description, partForm.source, partForm.partType).then(res => {
-          console.log('编辑部件返回结果', res);
+      // partapi.updatePart(editPartForm.data.id, editPartForm.data.name, editPartForm.data.master,
+      //   editPartForm.data.description, partForm.source, partForm.partType).then(res => {
+      //     console.log('编辑部件返回结果', res);
+      //     if (res.code == 200) {
+      //       ElMessage({ type: 'success', message: '修改成功' });
+      //     } else {
+      //       ElMessage({ type: 'error', message: res.msg });
+      //     }
+      //   })
+      partapi.updatePart2(editPartForm.data.name,editPartForm.data.master,editPartForm.data.branch,
+      partForm.source,partForm.partType).then(res=>{
+        console.log('编辑部件返回结果', res);
           if (res.code == 200) {
-
             ElMessage({ type: 'success', message: '修改成功' });
           } else {
             ElMessage({ type: 'error', message: res.msg });
           }
-
-        })
+      })
     }
 
     //处理当前页面页数变化
@@ -534,6 +540,7 @@ export default {
         } else {
           ElMessage({ type: 'error', message: res.msg });
         }
+        
       })
     }
 
@@ -559,7 +566,6 @@ export default {
     //查询分类的属性
     function getNodeAttr(val) {
       console.log('当前分类', val);
-
       //赋值分类分类id和编码
       partForm.businessCode = val.businessCode;
       partForm.extAttrs[0].value = val.id;
@@ -599,14 +605,17 @@ export default {
       if (expands.value.includes(row.id)) {
         expands.value = expands.value.filter((val) => val !== row.id);
       } else {
+        
+        //先获取版本信息
+        getVersionInfo(row);
         //实现手风琴模式 一次只能打开一个
         expands.value = [];
-        expands.value.push(row.id);
-        getVersionInfo(row);
+        expands.value.push(row.id); 
       }
-
-
     }
+
+    //修订大版本
+
 
 
     return {
