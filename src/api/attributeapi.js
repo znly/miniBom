@@ -51,6 +51,14 @@ export default {
     });
   },
 
+  //获取引用了该属性的分类
+  getAttrClassification(id) {
+    return request({
+      url: "/idme/attribute/reference/" + id,
+      method: "get",
+    });
+  },
+
   // ----------分类相关api---------
 
   //分页查询分类节点

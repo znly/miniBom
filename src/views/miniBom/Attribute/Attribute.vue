@@ -52,8 +52,11 @@
               <span v-if="scope.row.type == 'STRING'">
                 字符串
               </span>
-              <span v-else>
+              <span v-else-if="scope.row.type == 'DECIMAL'">
                 数值型
+              </span>
+              <span v-else>
+                分类
               </span>
             </template>
           </el-table-column>
@@ -365,6 +368,19 @@
 
     </el-dialog>
 
+    <!-- 展示引用了该属性的分类信息 -->
+    <el-dialog title="引用了该属性的分类信息" v-model="attrInfoDialog" draggable style="margin-top: 10px;">
+      <div>
+            <el-table :data="referenceClass.data" empty-text="暂无引用该属性的分类">
+              <el-table-column label="id" prop="id"></el-table-column>
+              <el-table-column label="编码" prop="businessCode"></el-table-column>
+              <el-table-column label="中文名称" prop="name"></el-table-column>
+              <el-table-column label="描述" prop="description"></el-table-column>
+            </el-table>
+      </div>
+
+    </el-dialog>
+
     <div style="display: flex;justify-content: center;margin-top: 10px;height: 35px;background-color: white;">
       <el-pagination background layout="total, sizes, prev, pager, next, jumper" :total="tableList.total"
         :page-size="pageSize" v-model:current-page="curPage" :page-sizes="[10, 20, 30, 40]"
@@ -432,6 +448,8 @@ export default {
     const addClassDialog = ref(false);
     //编辑分类弹窗
     const editClassDialog = ref(false);
+    //引用该分类的属性弹窗
+    const attrInfoDialog = ref(false);
     //添加属性表单
     const attributeForm = reactive({
       //中英文名称和中英文描述
@@ -633,9 +651,21 @@ export default {
         pageQueryClass();
       }
     }
+
+    const referenceClass = reactive({
+      data: []
+    });
     //展示属性分类
     function showCategory(index, row) {
       // console.log(index, row);
+      attributeapi.getAttrClassification(row.id).then(res => {
+        if (res.code == 200) {
+          referenceClass.data = res.data;
+          attrInfoDialog.value = true;
+        } else {
+          ElMessage({ type: 'error', message: res.msg });
+        }
+      })
     }
     //编辑属性
     function editAttribute() {
@@ -720,8 +750,10 @@ export default {
 
     //切换查询选择
     function handleSwitch() {
-      tableList.data = null;
+      tableList.data = [];
       tableList.total = 0;
+      curPage.value = 1;
+      pageSize.value = 10;
     }
 
     //编辑分类信息
@@ -773,9 +805,11 @@ export default {
         console.log('删除关联属性', res);
         if (res.code == 200) {
           ElMessage({ type: 'success', message: '删除成功' });
-          setTimeout(() => {
+          classInfoDialog.value = false;
+/*          setTimeout(() => {
             location.reload();
-          }, 500);
+          }, 500);*/
+
         } else {
           ElMessage({ type: 'error', message: res.msg });
         }
@@ -840,7 +874,8 @@ export default {
           if (res.code == 200) {
             ElMessage({ type: 'success', message: '删除成功' });
             setTimeout(() => {
-              location.reload();
+              //location.reload();
+              pageQueryAttribute();
             }, 500);
           } else {
             ElMessage({ type: 'error', message: res.msg });
@@ -851,7 +886,8 @@ export default {
           if (res.code == 200) {
             ElMessage({ type: 'success', message: '删除成功' });
             setTimeout(() => {
-              location.reload();
+             // location.reload();
+              pageQueryClass();
             }, 500);
           } else {
             ElMessage({ type: 'error', message: res.msg });
@@ -952,7 +988,7 @@ export default {
       addClassAttrs, inputAttrId, addClassAttrDia, addClassDialog, ClassForm, classFormRules
       , addClass,delClassAttrsFunc,typeOptions,treeProps,nodeClickFun,deleteAttribute,showMode,editClassAttr,allAttr,
       pageGetAttr,attrCurPage,attrPageSize,handleAttrSelectionChange,handleAttrSizeChange,handleAttrCurrentChange,
-      selectAttrList,showAttrInfo,handleEditAttr,rowId
+      selectAttrList,showAttrInfo,handleEditAttr,rowId,attrInfoDialog,referenceClass
     }
   },
   created() {
