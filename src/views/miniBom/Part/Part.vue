@@ -119,11 +119,17 @@
               <el-form-item label="分类代码">
                 <el-input v-model="partForm.businessCode" disabled />
               </el-form-item>
-              <el-form-item label="品牌">
+<!--              <el-form-item label="品牌">
                 <el-input v-model="partForm.clsAttrs[0].Classification.Brand" disabled />
               </el-form-item>
               <el-form-item label="型号">
                 <el-input v-model="partForm.clsAttrs[0].Classification.Mode" disabled />
+              </el-form-item>-->
+              <el-form-item
+              v-for="(value,name) in tempClsAttrs[0].Classification"
+              :label="name"
+              >
+                <el-input v-model="partForm.clsAttrs[0].Classification[name]"></el-input>
               </el-form-item>
             </el-form>
           </div>
@@ -334,6 +340,11 @@ export default {
     //编辑部件信息
     const editPartForm = reactive({ data: {} });
 
+    const tempClsAttrs = reactive([{
+      "Classification":{
+      }
+    }])
+
     //添加部件表单
     const partForm = reactive({
       //名称，默认单位，装配模式，来源，分类
@@ -356,12 +367,12 @@ export default {
       clsAttrs: [
         {
           'Classification': {
-            'Brand': 'huawei',
+/*            'Brand': 'huawei',
             'Length': '0.00',
             'Mode': 'B10',
             'Height or thick': '0.00',
             'Width': '0.00',
-            'Weight': '0.00',
+            'Weight': '0.00',*/
           }
         }
       ],
@@ -395,6 +406,7 @@ export default {
     function nodeClickFun(val) {
       // console.log('当前分类', val);
       //获取该分类的详细属性
+      tempClsAttrs[0].Classification = {};
       getNodeAttr(val);
     }
 
@@ -408,15 +420,13 @@ export default {
       partFormRef.value.validate((valid) => {
         if (valid) {
           //调用api创建
-          partapi.create(partForm.source, partForm.branch, partForm.master, partForm.name,
-            partForm.partType, partForm.extAttrs, partForm.clsAttrs).then(res => {
+          partapi.create(partForm.name,partForm.source,partForm.partType,partForm.master,
+          partForm.branch,partForm.extAttrs,partForm.clsAttrs).then(res => {
               console.log(res);
               if (res.code == 200) {
                 ElMessage({ type: 'success', message: '创建成功' });
-                //直接重载页面
-                setTimeout(() => {
-                  location.reload();
-                }, 500);
+                getPartList();
+                addDialog.value = false;
               } else {
                 ElMessage({ type: 'error', message: res.msg });
               }
@@ -582,6 +592,11 @@ export default {
         console.log('获取分类详细信息', res);
         if (res.code == 200) {
           //赋值分类属性
+          for (let datum of res.data) {
+            tempClsAttrs[0].Classification[datum.nameEn] = '';
+          }
+
+          console.log(tempClsAttrs[0])
 
         } else {
           ElMessage({ type: 'error', message: res.msg });
@@ -653,7 +668,7 @@ export default {
       , curPage, pageSize, Delete, Edit, Pointer, editDialog, formRules, options, typeOptions, getType, treeProps, nodeClickFun, partFormRef, sourceOptions, patternOptions,
       editPart, editPartForm, showMode, partVersionList, getVersionList, deleteVersion,
       handleCurrentChange, handleSizeChange, deletePart, getNodeAttr, getVersionInfo, handleRowClick,
-      expands, smallVersion, getBOMLinks,curBOMLink
+      expands, smallVersion, getBOMLinks,curBOMLink,tempClsAttrs
     }
   },
   mounted() {

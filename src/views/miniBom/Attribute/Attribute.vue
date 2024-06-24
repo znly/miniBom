@@ -957,6 +957,7 @@ export default {
     const rowId = ref(0);
 
     function handleEditAttr(){
+      selectAttrList.data = [];
       allAttr.data = allAttr.data.filter(item => item.name !== '分类');
       for (let datum of allAttr.data) {
         for (let attrListElement of curClass.attrList) {
@@ -968,14 +969,19 @@ export default {
     }
 
     function addClassAttrs() {
-      attributeapi.addAttr(selectAttrList.data, rowId.value).then(res => {
-        if (res.code == 200) {
-          ElMessage({ type: 'success', message: '添加成功' });
-          editClassDialog.value = false;
-        } else {
-          ElMessage({ type: 'error', message: res.msg });
-        }
-      })
+      if(selectAttrList.data.length == 0){
+        ElMessage({ type: 'error', message: '未选择任何属性，请重新选择' });
+      }else{
+        attributeapi.addAttr(selectAttrList.data, rowId.value).then(res => {
+          if (res.code == 200) {
+            ElMessage({ type: 'success', message: '添加成功' });
+            editClassDialog.value = false;
+          } else {
+            ElMessage({ type: 'error', message: res.msg });
+          }
+        })
+      }
+
     }
 
 
