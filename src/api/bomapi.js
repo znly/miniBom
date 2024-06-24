@@ -95,7 +95,7 @@ export default {
   },
 
   //获取父项
-  queryTarget(pageSize, curPage,id) {
+  queryTarget(pageSize, curPage, id) {
     return request({
       url: "/api/BOMLink/queryTarget/" + pageSize + "/" + curPage,
       method: "post",
@@ -108,7 +108,7 @@ export default {
   },
 
   //获取子项
-  queryRelatedPart(pageSize, curPage,id) {
+  queryRelatedPart(pageSize, curPage, id) {
     return request({
       url: "/api/BOMLink/queryRelatedPart/" + pageSize + "/" + curPage,
       method: "post",
@@ -117,6 +117,42 @@ export default {
         latestOnly: true,
         objectId: id,
         role: "",
+      },
+    });
+  },
+
+  //-----------BOMUsesOccurrence相关api--------------
+  //创建
+  createBOMUsesOccurrence() {
+    return request({
+      url: "/api/BOMUsesOccurrence/get",
+      method: "post",
+      data: {},
+    });
+  },
+  //查询
+  getBOMUsesOccurrence(id) {
+    return request({
+      url: "/api/BOMUsesOccurrence/get",
+      method: "post",
+      data: { decrypt: true, id: id },
+    });
+  },
+  //修改
+  updateBOMUsesOccurrence() {
+    return request({
+      url: "/api/BOMUsesOccurrence/update",
+      method: "post",
+      data: {},
+    });
+  },
+  //删除
+  deleteBOMUserOccurrence(id) {
+    return request({
+      url: "/api/BOMUsesOccurrence/delete",
+      method: "delete",
+      data: {
+        id: id,
       },
     });
   },
