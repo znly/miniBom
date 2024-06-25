@@ -253,12 +253,28 @@
 
           <!-- BOMlink展示 -->
           <div v-show="showMode == 'bom'" >
+            <div style="margin-top: 15px;margin-bottom: 15px;margin-left: 0px">
+              <el-button type="primary">新增子项</el-button>
+              <el-button type="primary">查看BOM清单</el-button>
+              <el-button type="primary" @click="handleParentClick">查看父项</el-button>
+            </div>
               <div>
                 <el-table :data="curBOMLink.data" empty-text="该部件暂无子项">
                   <el-table-column label="编码" prop="target.number"></el-table-column>
                   <el-table-column label="名称" prop="target.name"></el-table-column>
                   <el-table-column label="数量" prop="quantity"></el-table-column>
                   <el-table-column label="位号" prop="sequenceNumber"></el-table-column>
+                  <el-table-column fixed="right" label="操作" width="120">
+                    <template #default="scope">
+                      <el-button type="primary" :icon="Edit" circle @click="" />
+                      <el-popconfirm title="确认是否删除该子项?"
+                                     @confirm="">
+                        <template #reference>
+                          <el-button type="danger" :icon="Delete" circle />
+                        </template>
+                      </el-popconfirm>
+                    </template>
+                  </el-table-column>
                 </el-table>
               </div>
 
@@ -267,6 +283,18 @@
           <div style="margin-top: 20px;">
             <el-button type="primary" @click="editPart" v-show="showMode == 'basic'">确定</el-button>
             <el-button type="danger" @click="editDialog = false">取消</el-button>
+          </div>
+
+        </el-dialog>
+
+        <el-dialog title="此部件的直接父项部件" v-model="parentDialog" draggable style="margin-top: 10px;">
+          <div>
+            <el-table :data="parentPart.data" empty-text="该部件暂无父项部件">
+              <el-table-column label="id" prop="id"></el-table-column>
+              <el-table-column label="名称" prop="name"></el-table-column>
+              <el-table-column label="描述" prop="description"></el-table-column>
+              <el-table-column label="创建者" prop="creator"></el-table-column>
+            </el-table>
           </div>
 
         </el-dialog>
@@ -331,6 +359,8 @@ export default {
     const addDialog = ref(false);
     //编辑部件弹窗
     const editDialog = ref(false);
+    //Part直接父项部件弹窗
+    const parentDialog = ref(false);
 
     //编辑部件信息
     const editPartForm = reactive({ data: {} });
@@ -660,6 +690,7 @@ export default {
     }
 
     function handleEditPartForm(val){
+      forParentId.value = val.master.id;
       partapi.getPart(val.id).then(res =>{
         if (res.code == 200) {
           //editFormGetNodeAttr(res.data.extAttrs[0].value.id);
@@ -723,6 +754,20 @@ export default {
       })
     }
 
+    const parentPart = reactive({
+      data:[],
+    });
+
+    const forParentId = ref(0);
+
+    function handleParentClick(){
+      console.log(forParentId.value)
+      bomapi.queryRelatedPart(50,1,forParentId.value).then(res => {
+        parentPart.data = res.data;
+        parentDialog.value = true;
+      })
+    }
+
 
 
     return {
@@ -731,7 +776,7 @@ export default {
       editPart, editPartForm, showMode, partVersionList, getVersionList, deleteVersion,
       handleCurrentChange, handleSizeChange, deletePart, getNodeAttr, getVersionInfo, handleRowClick,
       expands, smallVersion, getBOMLinks,curBOMLink,tempClsAttrs,handleEditPartForm,editFormGetNodeAttr,
-      handleEditClick,getBOMChildren
+      handleEditClick,getBOMChildren,handleParentClick,parentDialog,parentPart,forParentId
     }
   },
   mounted() {

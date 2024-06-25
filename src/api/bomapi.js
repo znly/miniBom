@@ -113,10 +113,9 @@ export default {
       url: "/api/BOMLink/queryRelatedPart/" + pageSize + "/" + curPage,
       method: "post",
       data: {
-        isNeedTotal: true,
-        latestOnly: true,
+        latestOnly: false,
         objectId: id,
-        role: "",
+        role: "Target",
       },
     });
   },
