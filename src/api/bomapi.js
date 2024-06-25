@@ -121,6 +121,14 @@ export default {
     });
   },
 
+  //获取子项
+  queryChildren(id){
+    return request({
+      url: "/api/BOMLink/"+id,
+      method: "get",
+    });
+  },
+
   //-----------BOMUsesOccurrence相关api--------------
   //创建
   createBOMUsesOccurrence() {

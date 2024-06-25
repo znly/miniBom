@@ -55,7 +55,7 @@
 
 
         <div>
-          <el-button type="primary" @click="addDialog = true">添加部件</el-button>
+          <el-button type="primary" @click="addDialog = true,tempClsAttrs[0].Classification = {}">添加部件</el-button>
         </div>
 
         <!-- <div style="display: flex;justify-content: center;margin-top: 10px;">
@@ -72,8 +72,8 @@
           <div>
             <el-radio-group v-model="showMode" size="large">
               <el-radio-button label="基本属性" value="basic" />
-              <el-radio-button label="BOM清单" value="bom" />
-              <el-radio-button label="版本管理" value="version" />
+<!--              <el-radio-button label="BOM清单" value="bom" />
+              <el-radio-button label="版本管理" value="version" />-->
             </el-radio-group>
           </div>
           <div v-show="showMode == 'basic'">
@@ -137,11 +137,11 @@
           <!-- BOM清单 -->
 
           <!-- 版本管理 -->
-          <div v-show="showMode == 'version'">
+<!--          <div v-show="showMode == 'version'">
             <el-table :data="partVersionList.data">
               <el-table-column label="编码" />
             </el-table>
-          </div>
+          </div>-->
           <div style="margin-top: 20px;">
             <el-button type="primary" @click="addPart">确定</el-button>
             <el-button type="danger" @click="addDialog = false">取消</el-button>
@@ -155,7 +155,7 @@
             <el-radio-group v-model="showMode" size="large">
               <el-radio-button label="基本属性" value="basic" />
               <!-- 点击时获取BOMlinks -->
-              <el-radio-button label="BOM清单" value="bom" @click="getBOMLinks(editPartForm.data)" />
+              <el-radio-button label="BOM清单" value="bom"/> <!--@click="getBOMLinks(editPartForm.data)"-->
               <el-radio-button label="版本管理" value="version" @click="getVersionList" />
             </el-radio-group>
           </div>
@@ -253,12 +253,14 @@
 
           <!-- BOMlink展示 -->
           <div v-show="showMode == 'bom'" >
-            <div v-if="curBOMLink.data!=null">
-
-            </div>
-            <div v-else style="margin-top:20px">
-              暂无任何数据
-            </div>
+              <div>
+                <el-table :data="curBOMLink.data" empty-text="该部件暂无子项">
+                  <el-table-column label="编码" prop="target.number"></el-table-column>
+                  <el-table-column label="名称" prop="target.name"></el-table-column>
+                  <el-table-column label="数量" prop="quantity"></el-table-column>
+                  <el-table-column label="位号" prop="sequenceNumber"></el-table-column>
+                </el-table>
+              </div>
 
           </div>
 
@@ -642,8 +644,8 @@ export default {
 
     //当前展示的BOMlink
     const curBOMLink = reactive({
-      data:{},
-    })
+      data:[],
+    });
 
     //获取bomlink
     function getBOMLinks(val) {
@@ -661,13 +663,22 @@ export default {
       partapi.getPart(val.id).then(res =>{
         if (res.code == 200) {
           //editFormGetNodeAttr(res.data.extAttrs[0].value.id);
-
+          tempClsAttrs[0].Classification = {};
           editPartForm.data = res.data;
+          if(editPartForm.data.clsAttrs == null){
+            editPartForm.data.clsAttrs = [
+              {
+                'Classification': {
+                }
+              }
+            ];
+          }
           editPartForm.data.classification = editPartForm.data.extAttrs[0].value.name;
           editPartForm.data.businessCode = editPartForm.data.extAttrs[0].value.businessCode;
           //editPartForm.data.extAttrs[0].value = editPartForm.data.extAttrs[0].value.id;
           editFormGetNodeAttr(editPartForm.data.extAttrs[0].value.id);
           editPartForm.data.defaultUnit = 'PCS';
+          getBOMChildren(val.id);
           editDialog.value = true;
           console.log(editPartForm.data)
         } else {
@@ -705,6 +716,13 @@ export default {
       editFormGetNodeAttr(val.id);
     }
 
+    function getBOMChildren(id){
+      bomapi.queryChildren(id).then(res => {
+        curBOMLink.data = res.data;
+        console.log(curBOMLink.data);
+      })
+    }
+
 
 
     return {
@@ -713,7 +731,7 @@ export default {
       editPart, editPartForm, showMode, partVersionList, getVersionList, deleteVersion,
       handleCurrentChange, handleSizeChange, deletePart, getNodeAttr, getVersionInfo, handleRowClick,
       expands, smallVersion, getBOMLinks,curBOMLink,tempClsAttrs,handleEditPartForm,editFormGetNodeAttr,
-      handleEditClick
+      handleEditClick,getBOMChildren
     }
   },
   mounted() {
