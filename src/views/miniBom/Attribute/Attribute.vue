@@ -818,8 +818,8 @@ export default {
 
     const addClass = () => {
       // console.log(ClassForm);
-      classFormRef.value.validate((valid)=>{
-        if(valid){
+/*      classFormRef.value.validate((valid)=>{
+        if(valid){*/
           attributeapi.createClassificationNode(ClassForm.businessCode,ClassForm.name, ClassForm.nameEn, ClassForm.description,ClassForm.disableFlag,
               ClassForm.instantiable,ClassForm.parentNode).then(res => {
             // console.log(res);
@@ -833,10 +833,10 @@ export default {
               ElMessage({ type: 'error', message: res.msg });
             }
           })
-        }else{
+/*        }else{
           ElMessage({ type: 'warning', message: '请填写必填字段' });
         }
-      })
+      })*/
     }
 
     function getType() {

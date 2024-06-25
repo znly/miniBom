@@ -41,11 +41,11 @@ export default {
     });
   },
   //更新部件 修改传入的参数 上面那个读不到master更新失败
-  updatePart2(name,master,branch,source, partType){
+  updatePart2(name,master,branch,source, partType,extAttrs,clsAttrs){
     return request({
       url: "/idme/part/update",
       method: "post",
-      data: { name,master,branch,source, partType },
+      data: { name,master,branch,source, partType,extAttrs,clsAttrs},
     });
   },
 
@@ -82,6 +82,14 @@ export default {
     return request({
       url:'/idme/part/revise/'+masterId,
       method:'post',
+    })
+  },
+
+  //根据id获取Part用于更新
+  getPart(id){
+    return request({
+      url:'idme/part/'+id,
+      method:'get'
     })
   }
 
