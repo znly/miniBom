@@ -83,7 +83,7 @@ export default {
     return request({
       url: "/api/BOMLink/delete",
       method: "delete",
-      data: { id: id, modifier: "" },
+      data: { id: id },
     });
   },
 

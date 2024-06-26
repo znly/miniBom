@@ -55,7 +55,7 @@
 
 
         <div>
-          <el-button type="primary" @click="addDialog = true,tempClsAttrs[0].Classification = {}">添加部件</el-button>
+          <el-button type="primary" @click="addDialog = true, tempClsAttrs[0].Classification = {}">添加部件</el-button>
         </div>
 
         <!-- <div style="display: flex;justify-content: center;margin-top: 10px;">
@@ -72,7 +72,7 @@
           <div>
             <el-radio-group v-model="showMode" size="large">
               <el-radio-button label="基本属性" value="basic" />
-<!--              <el-radio-button label="BOM清单" value="bom" />
+              <!--              <el-radio-button label="BOM清单" value="bom" />
               <el-radio-button label="版本管理" value="version" />-->
             </el-radio-group>
           </div>
@@ -119,16 +119,13 @@
               <el-form-item label="分类代码">
                 <el-input v-model="partForm.businessCode" disabled />
               </el-form-item>
-<!--              <el-form-item label="品牌">
+              <!--              <el-form-item label="品牌">
                 <el-input v-model="partForm.clsAttrs[0].Classification.Brand" disabled />
               </el-form-item>
               <el-form-item label="型号">
                 <el-input v-model="partForm.clsAttrs[0].Classification.Mode" disabled />
               </el-form-item>-->
-              <el-form-item
-              v-for="(value,name) in tempClsAttrs[0].Classification"
-              :label="name"
-              >
+              <el-form-item v-for="(value, name) in tempClsAttrs[0].Classification" :label="name" :key="name">
                 <el-input v-model="partForm.clsAttrs[0].Classification[name]"></el-input>
               </el-form-item>
             </el-form>
@@ -137,7 +134,7 @@
           <!-- BOM清单 -->
 
           <!-- 版本管理 -->
-<!--          <div v-show="showMode == 'version'">
+          <!--          <div v-show="showMode == 'version'">
             <el-table :data="partVersionList.data">
               <el-table-column label="编码" />
             </el-table>
@@ -155,7 +152,7 @@
             <el-radio-group v-model="showMode" size="large">
               <el-radio-button label="基本属性" value="basic" />
               <!-- 点击时获取BOMlinks -->
-              <el-radio-button label="BOM清单" value="bom"/> <!--@click="getBOMLinks(editPartForm.data)"-->
+              <el-radio-button label="BOM清单" value="bom" /> <!--@click="getBOMLinks(editPartForm.data)"-->
               <el-radio-button label="版本管理" value="version" @click="getVersionList" />
             </el-radio-group>
           </div>
@@ -186,8 +183,9 @@
               </el-form-item>
               <el-form-item label="分类" prop="type">
                 <!-- 分类树形选择 -->
-                <el-tree-select v-model="editPartForm.data.classification" :data="typeOptions.data" render-after-expand="false"
-                  accordion :props="treeProps" style="width: 240px" @node-click="handleEditClick" placeholder="请选择分类">
+                <el-tree-select v-model="editPartForm.data.classification" :data="typeOptions.data"
+                  render-after-expand="false" accordion :props="treeProps" style="width: 240px"
+                  @node-click="handleEditClick" placeholder="请选择分类">
                   <template #default="{ data: { name } }">
                     {{ name }}
                   </template>
@@ -198,10 +196,7 @@
               <el-form-item label="分类代码">
                 <el-input v-model="editPartForm.data.businessCode" disabled />
               </el-form-item>
-              <el-form-item
-                  v-for="(value,name) in tempClsAttrs[0].Classification"
-                  :label="name"
-              >
+              <el-form-item v-for="(value, name) in tempClsAttrs[0].Classification" :label="name" :key="name">
                 <el-input v-model="editPartForm.data.clsAttrs[0].Classification[name]"></el-input>
               </el-form-item>
             </el-form>
@@ -225,7 +220,7 @@
                       <div v-for="item in smallVersion.data.extAttrs" :key="item">
                         <!-- {{item}} -->
                         <div>属性id: {{ item.value.id }}</div>
-                        <div>中文名称: {{item.value.name}}</div>
+                        <div>中文名称: {{ item.value.name }}</div>
                         <div>英文名称: {{ item.value.nameEn }}</div>
                       </div>
                       <!-- <span>{{ smallVersion.data.extAttrs }}</span> -->
@@ -258,31 +253,30 @@
           </div>
 
           <!-- BOMlink展示 -->
-          <div v-show="showMode == 'bom'" >
+          <div v-show="showMode == 'bom'">
             <div style="margin-top: 15px;margin-bottom: 15px;margin-left: 0px">
               <el-button type="primary" @click="addPartSonDialog = true">新增子项</el-button>
               <el-button type="primary">查看BOM清单</el-button>
               <el-button type="primary" @click="handleParentClick">查看父项</el-button>
             </div>
-              <div>
-                <el-table :data="curBOMLink.data" empty-text="该部件暂无子项">
-                  <el-table-column label="id" prop="target.id"></el-table-column>
-                  <el-table-column label="名称" prop="target.name"></el-table-column>
-                  <el-table-column label="数量" prop="quantity"></el-table-column>
-                  <el-table-column label="位号" prop="sequenceNumber"></el-table-column>
-                  <el-table-column fixed="right" label="操作" width="120">
-                    <template #default="scope">
-                      <el-button type="primary" :icon="Edit" circle @click="handleSonBOMUpdate(scope.row)" />
-                      <el-popconfirm title="确认是否删除该子项?"
-                                     @confirm="">
-                        <template #reference>
-                          <el-button type="danger" :icon="Delete" circle />
-                        </template>
-                      </el-popconfirm>
-                    </template>
-                  </el-table-column>
-                </el-table>
-              </div>
+            <div>
+              <el-table :data="curBOMLink.data" empty-text="该部件暂无子项">
+                <el-table-column label="id" prop="target.id"></el-table-column>
+                <el-table-column label="名称" prop="target.name"></el-table-column>
+                <el-table-column label="数量" prop="quantity"></el-table-column>
+                <el-table-column label="位号" prop="sequenceNumber"></el-table-column>
+                <el-table-column fixed="right" label="操作" width="120">
+                  <template #default="scope">
+                    <el-button type="primary" :icon="Edit" circle @click="handleSonBOMUpdate(scope.row)" />
+                    <el-popconfirm title="确认是否删除该子项?" @confirm="deleteSonBOM(scope.row)">
+                      <template #reference>
+                        <el-button type="danger" :icon="Delete" circle />
+                      </template>
+                    </el-popconfirm>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </div>
 
           </div>
 
@@ -305,7 +299,8 @@
 
         </el-dialog>
 
-        <el-dialog title="新增子项表单" v-model="addPartSonDialog" draggable style="margin-top: 10px;" @close="activeNames = ''">
+        <el-dialog title="新增子项表单" v-model="addPartSonDialog" draggable style="margin-top: 10px;"
+          @close="activeNames = ''">
           <div>
             <el-collapse v-model="activeNames" @change="handleActiveChange">
               <el-collapse-item title="添加部件" name="1">
@@ -313,10 +308,12 @@
                   <div style="display: flex;align-items: center;justify-content: center;">
                     <el-radio-group v-model="sonFindType">
                       <el-radio value="id">按编码查询
-                        <el-input placeholder="请输入关键词" style="width: 200px;" v-model="sonPartId" :disabled="sonFindType != 'id'" />
+                        <el-input placeholder="请输入关键词" style="width: 200px;" v-model="sonPartId"
+                          :disabled="sonFindType != 'id'" />
                       </el-radio>
                       <el-radio value="name">按部件名称查询
-                        <el-input placeholder="请输入关键词" style="width: 200px;" v-model="sonPartName" :disabled="sonFindType != 'name'" />
+                        <el-input placeholder="请输入关键词" style="width: 200px;" v-model="sonPartName"
+                          :disabled="sonFindType != 'name'" />
                       </el-radio>
                     </el-radio-group>
                     <el-button type="primary" @click="getSonPartList">查询</el-button>
@@ -324,18 +321,20 @@
 
                   <div>
                     <el-table :data="sonPartList.data" style="width: 100%;margin-top: 10px;" empty-text="暂无相关数据" border
-                              @current-change="handleSonRadioChange"  height="500px" highlight-current-row>
-                      <el-table-column type="radio" width="55"/>
+                      @current-change="handleSonRadioChange" height="500px" highlight-current-row>
+                      <el-table-column type="radio" width="55" />
 
                       <el-table-column prop="id" label="id" width="200" />
                       <el-table-column prop="name" label="name" width="120" />
                       <el-table-column prop="description" label="中文描述" width="120" />
                     </el-table>
 
-                    <div style="display: flex;justify-content: center;margin-top: 10px;margin-bottom: 15px; height: 35px;background-color: white;">
-                      <el-pagination background layout="total, sizes, prev, pager, next, jumper" :total="sonPartList.total"
-                                     :page-size="sonPageSize" v-model:current-page="sonCurPage" :page-sizes="[50,100,200]"
-                                     @size-change="handleSonSizeChange" @current-change="handleSonCurrentChange" />
+                    <div
+                      style="display: flex;justify-content: center;margin-top: 10px;margin-bottom: 15px; height: 35px;background-color: white;">
+                      <el-pagination background layout="total, sizes, prev, pager, next, jumper"
+                        :total="sonPartList.total" :page-size="sonPageSize" v-model:current-page="sonCurPage"
+                        :page-sizes="[50, 100, 200]" @size-change="handleSonSizeChange"
+                        @current-change="handleSonCurrentChange" />
                     </div>
                   </div>
                 </div>
@@ -343,8 +342,8 @@
               </el-collapse-item>
               <el-collapse-item title="BOM信息" name="2">
                 <div>
-                  <el-form ref="attributeFormRef" style="max-width: 500px" :model="addBOMLinkForm"
-                           label-width="auto" class="demo-ruleForm" status-icon><!--:rules="formRules"-->
+                  <el-form ref="attributeFormRef" style="max-width: 500px" :model="addBOMLinkForm" label-width="auto"
+                    class="demo-ruleForm" status-icon><!--:rules="formRules"-->
                     <el-form-item label="数量" prop="quantity">
                       <el-input v-model="addBOMLinkForm.quantity" />
                     </el-form-item>
@@ -357,7 +356,8 @@
             </el-collapse>
             <div>
               <el-button type="primary" @click="addSonBOM">提交</el-button>
-              <el-button type="danger" @click="addPartSonDialog = false,addBOMLinkForm.target.id='',addBOMLinkForm.sequenceNumber='',addBOMLinkForm.quantity=''">取消</el-button>
+              <el-button type="danger"
+                @click="addPartSonDialog = false, addBOMLinkForm.target.id = '', addBOMLinkForm.sequenceNumber = '', addBOMLinkForm.quantity = ''">取消</el-button>
             </div>
           </div>
 
@@ -366,7 +366,7 @@
 
         <el-dialog title="编辑BOM信息" v-model="updateSonDialog" draggable style="margin-top: 10px;">
           <div>
-            <el-form  style="max-width: 500px" :model="updateBOMForm" label-width="auto">
+            <el-form style="max-width: 500px" :model="updateBOMForm" label-width="auto">
               <el-form-item label="数量" prop="quantity">
                 <el-input v-model="updateBOMForm.quantity" />
               </el-form-item>
@@ -455,15 +455,15 @@ export default {
     const editPartForm = reactive({ data: {} });
 
     const tempClsAttrs = reactive([{
-      "Classification":{
+      "Classification": {
       }
     }]);
 
     const addBOMLinkForm = reactive({
-      source:{
+      source: {
         id: ''
       },
-      target:{
+      target: {
         id: ''
       },
       quantity: '',
@@ -471,9 +471,9 @@ export default {
     });
 
     const updateBOMForm = reactive({
-      id:'',
+      id: '',
       quantity: '',
-      sequenceNumber:''
+      sequenceNumber: ''
     })
 
     //添加部件表单
@@ -498,12 +498,12 @@ export default {
       clsAttrs: [
         {
           'Classification': {
-/*            'Brand': 'huawei',
-            'Length': '0.00',
-            'Mode': 'B10',
-            'Height or thick': '0.00',
-            'Width': '0.00',
-            'Weight': '0.00',*/
+            /*            'Brand': 'huawei',
+                        'Length': '0.00',
+                        'Mode': 'B10',
+                        'Height or thick': '0.00',
+                        'Width': '0.00',
+                        'Weight': '0.00',*/
           }
         }
       ],
@@ -551,8 +551,8 @@ export default {
       partFormRef.value.validate((valid) => {
         if (valid) {
           //调用api创建
-          partapi.create(partForm.name,partForm.source,partForm.partType,partForm.master,
-          partForm.branch,partForm.extAttrs,partForm.clsAttrs).then(res => {
+          partapi.create(partForm.name, partForm.source, partForm.partType, partForm.master,
+            partForm.branch, partForm.extAttrs, partForm.clsAttrs).then(res => {
               console.log(res);
               if (res.code == 200) {
                 ElMessage({ type: 'success', message: '创建成功' });
@@ -683,7 +683,7 @@ export default {
     function editPart() {
       console.log('编辑部件信息', editPartForm.data);
       partapi.updatePart2(editPartForm.data.name, editPartForm.data.master, editPartForm.data.branch,
-        editPartForm.data.source, editPartForm.data.partType,editPartForm.data.extAttrs,editPartForm.data.clsAttrs).then(res => {
+        editPartForm.data.source, editPartForm.data.partType, editPartForm.data.extAttrs, editPartForm.data.clsAttrs).then(res => {
           console.log('编辑部件返回结果', res);
           if (res.code == 200) {
             ElMessage({ type: 'success', message: '修改成功' });
@@ -755,14 +755,14 @@ export default {
 
     //删除部件part
     function deletePart(val) {
-      console.log('删除部件',val);
-      if(store.state.user==null){
-        ElMessage({type:'error',message:'请先登录'});
+      console.log('删除部件', val);
+      if (store.state.user == null) {
+        ElMessage({ type: 'error', message: '请先登录' });
         return;
       }
       //修改人获取当前用户的id
       partapi.deletePart(val.master.id, store.state.user.id).then(res => {
-        console.log('删除部件part',res);
+        console.log('删除部件part', res);
         if (res.code == 200) {
           ElMessage({ type: 'success', message: '删除成功' })
           //刷新页面
@@ -839,14 +839,14 @@ export default {
 
     //当前展示的BOMlink
     const curBOMLink = reactive({
-      data:[],
+      data: [],
     });
 
     //获取bomlink
     function getBOMLinks(val) {
       bomapi.getBOMlinks(val.id).then(res => {
         if (res.code == 200) {
-          console.log('获取bomlink',res);
+          console.log('获取bomlink', res);
           curBOMLink.data = res.data;
         } else {
           ElMessage({ type: 'error', message: res.msg });
@@ -854,15 +854,15 @@ export default {
       })
     }
 
-    function handleEditPartForm(val){
+    function handleEditPartForm(val) {
       forParentId.value = val.master.id;
       addSonId.value = val.id;
-      partapi.getPart(val.id).then(res =>{
+      partapi.getPart(val.id).then(res => {
         if (res.code == 200) {
           //editFormGetNodeAttr(res.data.extAttrs[0].value.id);
           tempClsAttrs[0].Classification = {};
           editPartForm.data = res.data;
-          if(editPartForm.data.clsAttrs == null){
+          if (editPartForm.data.clsAttrs == null) {
             editPartForm.data.clsAttrs = [
               {
                 'Classification': {
@@ -888,7 +888,7 @@ export default {
       //console.log('当前分类', val);
       //赋值分类分类id和编码
       //editPartForm.data.businessCode = val.businessCode;
-     // editPartForm.data.extAttrs[0].value = val.id;
+      // editPartForm.data.extAttrs[0].value = val.id;
       attributeapi.getNodeAttr(id).then(res => {
         //console.log('获取分类详细信息', res);
         if (res.code == 200) {
@@ -905,7 +905,7 @@ export default {
       })
     }
 
-    function handleEditClick(val){
+    function handleEditClick(val) {
       tempClsAttrs[0].Classification = {};
       editPartForm.data.clsAttrs[0].Classification = {};
       editPartForm.data.businessCode = val.businessCode;
@@ -913,7 +913,7 @@ export default {
       editFormGetNodeAttr(val.id);
     }
 
-    function getBOMChildren(id){
+    function getBOMChildren(id) {
       bomapi.queryChildren(id).then(res => {
         curBOMLink.data = res.data;
         console.log(curBOMLink.data);
@@ -921,14 +921,14 @@ export default {
     }
 
     const parentPart = reactive({
-      data:[],
+      data: [],
     });
 
     const forParentId = ref(0);
 
-    function handleParentClick(){
+    function handleParentClick() {
       console.log(forParentId.value)
-      bomapi.queryRelatedPart(50,1,forParentId.value).then(res => {
+      bomapi.queryRelatedPart(50, 1, forParentId.value).then(res => {
         parentPart.data = res.data;
         parentDialog.value = true;
       })
@@ -940,44 +940,59 @@ export default {
       activeNames.value = val;
     }
 
-    function handleSonRadioChange(val){
+    function handleSonRadioChange(val) {
       console.log(val);
       addBOMLinkForm.target.id = val.master.id;
     }
 
     const addSonId = ref(0);
 
-    function addSonBOM(){
+    function addSonBOM() {
       addBOMLinkForm.source.id = addSonId.value;
-      bomapi.createBOMLink(addBOMLinkForm.source,addBOMLinkForm.target,addBOMLinkForm.quantity,addBOMLinkForm.sequenceNumber).then(res =>{
-        if(res.code == 200){
+      bomapi.createBOMLink(addBOMLinkForm.source, addBOMLinkForm.target, addBOMLinkForm.quantity, addBOMLinkForm.sequenceNumber).then(res => {
+        if (res.code == 200) {
           getBOMChildren(addSonId.value);
           addPartSonDialog.value = false;
           ElMessage({ type: 'success', message: '操作成功' });
-        }else{
+        } else {
           ElMessage({ type: 'error', message: res.msg });
         }
       })
     }
 
-    function updateSonBOM(){
-      bomapi.updateBOMLink(updateBOMForm.id,updateBOMForm.quantity,updateBOMForm.sequenceNumber).then(res =>{
-        if(res.code == 200){
+    function updateSonBOM() {
+      bomapi.updateBOMLink(updateBOMForm.id, updateBOMForm.quantity, updateBOMForm.sequenceNumber).then(res => {
+        if (res.code == 200) {
           getBOMChildren(addSonId.value);
           ElMessage({ type: 'success', message: '操作成功' });
           updateSonDialog.value = false;
-        }else{
+        } else {
           ElMessage({ type: 'error', message: res.msg });
         }
       })
     }
 
-    function handleSonBOMUpdate(val){
+    function handleSonBOMUpdate(val) {
       console.log(val);
       updateBOMForm.id = val.id;
       updateBOMForm.quantity = val.quantity;
       updateBOMForm.sequenceNumber = val.sequenceNumber;
       updateSonDialog.value = true;
+    }
+
+    //删除BOM子项
+    function deleteSonBOM(val) {
+      console.log('删除子项BOM', val);
+      bomapi.deleteBOMLink(val.id).then(res => {
+        console.log('删除返回结果',res);
+        if (res.code == 200) {
+          //关闭弹窗 重新打开就能实现更新的效果
+          editDialog.value = false;
+          ElMessage({ type: 'success', message: '删除成功' });
+        } else {
+          ElMessage({ type: 'error', message: res.msg });
+        }
+      })
     }
 
 
@@ -986,11 +1001,11 @@ export default {
       , curPage, pageSize, Delete, Edit, Pointer, editDialog, formRules, options, typeOptions, getType, treeProps, nodeClickFun, partFormRef, sourceOptions, patternOptions,
       editPart, editPartForm, showMode, partVersionList, getVersionList, deleteVersion,
       handleCurrentChange, handleSizeChange, deletePart, getNodeAttr, getVersionInfo, handleRowClick,
-      expands, smallVersion, getBOMLinks,curBOMLink,tempClsAttrs,handleEditPartForm,editFormGetNodeAttr,
-      handleEditClick,getBOMChildren,handleParentClick,parentDialog,parentPart,forParentId,addPartSonDialog,
-      activeNames,handleActiveChange,addBOMLinkForm,sonFindType,sonPartId,sonPartName,sonPartList,
-      getSonPartList,sonCurPage,sonPageSize,handleSonCurrentChange,handleSonSizeChange,handleSonRadioChange,
-      addSonBOM,addSonId,updateSonBOM,updateBOMForm,updateSonDialog,handleSonBOMUpdate
+      expands, smallVersion, getBOMLinks, curBOMLink, tempClsAttrs, handleEditPartForm, editFormGetNodeAttr,
+      handleEditClick, getBOMChildren, handleParentClick, parentDialog, parentPart, forParentId, addPartSonDialog,
+      activeNames, handleActiveChange, addBOMLinkForm, sonFindType, sonPartId, sonPartName, sonPartList,
+      getSonPartList, sonCurPage, sonPageSize, handleSonCurrentChange, handleSonSizeChange, handleSonRadioChange,
+      addSonBOM, addSonId, updateSonBOM, updateBOMForm, updateSonDialog, handleSonBOMUpdate, deleteSonBOM
     }
   },
   mounted() {
