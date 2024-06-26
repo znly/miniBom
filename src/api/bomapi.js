@@ -68,11 +68,13 @@ export default {
   },
 
   //创建BOMlink
-  createBOMLink() {
+  createBOMLink(source,target,quantity,sequenceNumber) {
     return request({
       url: "/api/BOMLink/create",
       method: "post",
-      data: {},
+      data: {
+        source,target,quantity,sequenceNumber
+      },
     });
   },
 
@@ -86,11 +88,13 @@ export default {
   },
 
   //修改BOMlink
-  updateBOMLink() {
+  updateBOMLink(id,quantity,sequenceNumber) {
     return request({
       url: "/api/BOMLink/update",
       method: "put",
-      data: {},
+      data: {
+        id,quantity,sequenceNumber
+      },
     });
   },
 
