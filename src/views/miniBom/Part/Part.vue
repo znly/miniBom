@@ -216,7 +216,7 @@
                     <div>英文描述:{{ smallVersion.data.descriptionEn }}</div>
                     <div>工作状态:{{ smallVersion.data.workingState }}</div>
                     <div>
-                      扩展属性
+                      <h3>扩展属性</h3>
                       <div v-for="item in smallVersion.data.extAttrs" :key="item">
                         <!-- {{item}} -->
                         <div>属性id: {{ item.value.id }}</div>
