@@ -11,13 +11,11 @@ export default {
     });
   },
   //创建部件
-  create(name,source,partType,master,branch,extAttrs,clsAttrs) {
+  create(source,branch,master,name,partType,extAttrs,clsAttrs) {
     return request({
       url: "/idme/part/create",
       method: "post",
-      data: {
-        name,source,partType,master,branch,extAttrs,clsAttrs
-      },
+      data: {source,branch,master,name,partType,extAttrs,clsAttrs},
     });
   },
 
@@ -41,11 +39,11 @@ export default {
     });
   },
   //更新部件 修改传入的参数 上面那个读不到master更新失败
-  updatePart2(name,master,branch,source, partType,extAttrs,clsAttrs){
+  updatePart2(name,master,branch,source, partType){
     return request({
       url: "/idme/part/update",
       method: "post",
-      data: { name,master,branch,source, partType,extAttrs,clsAttrs},
+      data: { name,master,branch,source, partType },
     });
   },
 
@@ -82,14 +80,6 @@ export default {
     return request({
       url:'/idme/part/revise/'+masterId,
       method:'post',
-    })
-  },
-
-  //根据id获取Part用于更新
-  getPart(id){
-    return request({
-      url:'idme/part/'+id,
-      method:'get'
     })
   }
 
