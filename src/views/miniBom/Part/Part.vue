@@ -222,7 +222,13 @@
                     <div>工作状态:{{ smallVersion.data.workingState }}</div>
                     <div>
                       扩展属性
-                      <span>{{ smallVersion.data.extAttrs }}</span>
+                      <div v-for="item in smallVersion.data.extAttrs" :key="item">
+                        <!-- {{item}} -->
+                        <div>属性id: {{ item.value.id }}</div>
+                        <div>中文名称: {{item.value.name}}</div>
+                        <div>英文名称: {{ item.value.nameEn }}</div>
+                      </div>
+                      <!-- <span>{{ smallVersion.data.extAttrs }}</span> -->
                     </div>
                   </div>
                 </template>
