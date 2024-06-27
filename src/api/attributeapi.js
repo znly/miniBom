@@ -51,6 +51,14 @@ export default {
     });
   },
 
+  //获取引用了该属性的分类
+  getAttrClassification(id) {
+    return request({
+      url: "/idme/attribute/reference/" + id,
+      method: "get",
+    });
+  },
+
   // ----------分类相关api---------
 
   //分页查询分类节点
@@ -68,6 +76,7 @@ export default {
       method: "get",
     });
   },
+
   //删除分类
   deleteClass(id) {
     return request({
@@ -86,18 +95,33 @@ export default {
   },
 
   //获取分类详细信息
-  getNodeAttr(id) {
+  getNodeAttr(linkId) {
     return request({
-      url: "/idme/classification/getAttr/" + id,
+      url: "/idme/classification/getAttr/" + linkId,
+      method: "get",
     });
   },
 
   //更新分类
-  updateClass(description,descriptionEn,id,name,nameEn) {
+  updateClassificationNode(
+    id,
+    name,
+    nameEn,
+    description,
+    descriptionEn,
+    instantiable
+  ) {
     return request({
       url: "/idme/classification/update",
       method: "post",
-      data: { description,descriptionEn,id,name,nameEn },
+      data: {
+        id,
+        name,
+        nameEn,
+        description,
+        descriptionEn,
+        instantiable,
+      },
     });
   },
 
@@ -111,11 +135,27 @@ export default {
   },
 
   //创建分类
-  createClass(name, nameEn, description, descriptionEn) {
+  createClassificationNode(
+    businessCode,
+    name,
+    nameEn,
+    description,
+    disableFlag,
+    instantiable,
+    parentNode
+  ) {
     return request({
       url: "/idme/classification/create",
       method: "post",
-      data: { name, nameEn, description, descriptionEn },
+      data: {
+        businessCode,
+        name,
+        nameEn,
+        description,
+        disableFlag,
+        instantiable,
+        parentNode,
+      },
     });
   },
 };

@@ -22,7 +22,7 @@
       </el-row>
 
       <el-row style="margin-top: 30px">
-        <el-button icon="CirclePlus" type="primary" @click="addDialog = true">添加部件</el-button>
+        <el-button icon="CirclePlus" type="primary" @click="addDialog = true,tempClsAttrs[0].Classification = {},partForm.classification = null,partForm.extAttrs[0].value = '',partForm.name=''">添加部件</el-button>
         <el-button  type="danger" icon="Delete" @click="deletePart" plain>删除</el-button>
       </el-row>
 
@@ -63,7 +63,7 @@
 
           <el-table-column fixed="right" label="操作"  >
             <template #default="scope">
-              <el-button type="primary" :icon="Edit" circle @click="editDialog = true, editPartForm.data = scope.row ,targetId = scope.row.id " />
+              <el-button type="primary" :icon="Edit" circle @click="handleEditPartForm(scope.row)" />
 <!--              <el-popconfirm title="是否确定删除该部件" @confirm="deletePart(scope.row)">-->
 <!--                <template #reference>-->
 <!--                  <el-button type="danger" :icon="Delete" circle />-->
@@ -177,24 +177,17 @@
 
               <el-form-item label="扩展属性" style="font-weight: bolder;" />
 
-              <el-row>
-                <el-col :span="12">
                   <el-form-item label="分类代码">
                     <el-input v-model="partForm.businessCode" disabled />
                   </el-form-item>
-                </el-col>
-                <el-col :span="12">
-                  <el-form-item label="品牌">
-                    <el-input v-model="partForm.clsAttrs[0].Classification.Brand" disabled />
-                  </el-form-item>
-                </el-col>
-              </el-row>
 
-              <el-col :span="12">
-                <el-form-item label="型号">
-                  <el-input v-model="partForm.clsAttrs[0].Classification.Mode" disabled />
-                </el-form-item>
-              </el-col>
+                  <el-form-item
+              v-for="(value,name) in tempClsAttrs[0].Classification"
+              :label="name"
+              >
+                <el-input v-model="partForm.clsAttrs[0].Classification[name]"></el-input>
+              </el-form-item>
+
             </el-form>
           </div>
 
@@ -220,7 +213,7 @@
         </el-drawer>
 
         <!-- 编辑部件弹窗 -->
-        <el-dialog v-model="editDialog" v-if="editDialog" title="编辑部件" draggable style="margin-top: 20px;"
+        <el-dialog v-model="editDialog" title="编辑部件" draggable style="margin-top: 20px;"
                    @closed="showMode = 'basic', expands = []">
           <div>
             <el-radio-group v-model="showMode" size="large">
@@ -249,19 +242,19 @@
                 </el-select>
               </el-form-item>
               <el-form-item label="来源" prop="source">
-                <el-select v-model="partForm.source" placeholder="请选择来源" style="width: 240px">
+                <el-select v-model="editPartForm.source" placeholder="请选择来源" style="width: 240px">
                   <el-option v-for="(item, key) in sourceOptions" :key="key" :label="item" :value="item" />
                 </el-select>
               </el-form-item>
               <el-form-item label="装配模式" prop="partType">
-                <el-select v-model="partForm.partType" placeholder="请选择装配模式" style="width: 240px">
+                <el-select v-model="editPartForm.partType" placeholder="请选择装配模式" style="width: 240px">
                   <el-option v-for="(item, key) in patternOptions" :key="key" :label="item" :value="item" />
                 </el-select>
               </el-form-item>
               <el-form-item label="分类" prop="type">
                 <!-- 分类树形选择 -->
-                <el-tree-select v-model="editPartForm.data.type" :data="typeOptions.data" render-after-expand="false"
-                                accordion :props="treeProps" style="width: 240px" @node-click="nodeClickFun" placeholder="请选择分类">
+                <el-tree-select v-model="editPartForm.data.classification" :data="typeOptions.data" render-after-expand="false"
+                                accordion :props="treeProps" style="width: 240px" @node-click="handleEditClick" placeholder="请选择分类">
                   <template #default="{ data: { name } }">
                     {{ name }}
                   </template>
@@ -270,21 +263,18 @@
 
               <el-form-item label="扩展属性" style="font-weight: bolder;" />
 
-              <el-form-item label="小类代码">
+              <el-form-item label="分类代码">
                 <el-input v-model="editPartForm.data.businessCode" disabled />
               </el-form-item>
-              <el-form-item label="PART类型">
-                <el-input v-model="editPartForm.data.brand" disabled />
+
+              <el-form-item
+                  v-for="(value,name) in tempClsAttrs[0].Classification"
+                  :label="name"
+              >
+                <el-input v-model="editPartForm.data.clsAttrs[0].Classification[name]"></el-input>
               </el-form-item>
-              <el-form-item label="使用产品说明">
-                <el-input v-model="editPartForm.data.mode" disabled />
-              </el-form-item>
-              <el-form-item label="对外名称">
-                <el-input v-model="editPartForm.data.mode" disabled />
-              </el-form-item>
-              <el-form-item label="对外英文名称">
-                <el-input v-model="editPartForm.data.mode" disabled />
-              </el-form-item>
+
+
             </el-form>
           </div>
           <div v-show="showMode == 'tree'">
@@ -479,12 +469,6 @@ export default {
       clsAttrs: [
         {
           'Classification': {
-            'Brand': 'huawei',
-            'Length': '0.00',
-            'Mode': 'B10',
-            'Height or thick': '0.00',
-            'Width': '0.00',
-            'Weight': '0.00',
           }
         }
       ],
@@ -524,7 +508,7 @@ export default {
       }
     }
     function getTree(){
-      bomapi.createTree(101).then(res=>{
+      bomapi.createTree(id).then(res=>{
         console.log(res)
         if(res.code===200){
           console.log('xxxxxxxxxxxxxxxxx-x--x-x-')
@@ -538,6 +522,8 @@ export default {
     function nodeClickFun(val) {
       // console.log('当前分类', val);
       //获取该分类的详细属性
+      tempClsAttrs[0].Classification = {};
+      console.log(tempClsAttrs[0].Classification);
       getNodeAttr(val);
     }
 
@@ -552,7 +538,7 @@ export default {
     //添加部件方法
     const addPart = () => {
       console.log(partForm);
-      //表单校验
+      表单校验
       partFormRef.value.validate((valid) => {
         if (valid) {
           //调用api创建
@@ -562,9 +548,8 @@ export default {
             if (res.code == 200) {
               ElMessage({type: 'success', message: '创建成功'});
               //直接重载页面
-              setTimeout(() => {
-                location.reload();
-              }, 500);
+              getPartList();
+              addDialog.value = false;
 
               // addDialog.value=false
               // getPartList()
@@ -610,6 +595,11 @@ export default {
       data: [],
       total: 0
     })
+
+    const tempClsAttrs = reactive([{
+      "Classification":{
+      }
+    }]);
 
 
     function reset(){
@@ -660,10 +650,12 @@ export default {
     function editPart() {
       console.log('编辑部件信息', editPartForm.data);
       partapi.updatePart2(editPartForm.data.name, editPartForm.data.master, editPartForm.data.branch,
-          partForm.source, partForm.partType).then(res => {
+          editPartForm.source, editPartForm.partType,editPartForm.data.extAttrs,editPartForm.data.clsAttrs).then(res => {
         console.log('编辑部件返回结果', res);
         if (res.code == 200) {
           ElMessage({type: 'success', message: '修改成功'});
+          getPartList();
+          tempClsAttrs[0].Classification = {};
           //关闭弹窗
           editDialog.value = false;
         } else {
@@ -756,6 +748,11 @@ export default {
         console.log('获取分类详细信息', res);
         if (res.code == 200) {
           //赋值分类属性
+          for (let datum of res.data) {
+            tempClsAttrs[0].Classification[datum.nameEn] = '';
+          }
+
+          console.log(tempClsAttrs[0])
 
         } else {
           ElMessage({type: 'error', message: res.msg});
@@ -819,6 +816,64 @@ export default {
       })
     }
 
+    function handleEditClick(val){
+      tempClsAttrs[0].Classification = {};
+      editPartForm.data.clsAttrs[0].Classification = {};
+      editPartForm.data.businessCode = val.businessCode;
+      editPartForm.data.extAttrs[0].value = val.id;
+      editFormGetNodeAttr(val.id);
+    }
+
+    function editFormGetNodeAttr(id) {
+      //console.log('当前分类', val);
+      //赋值分类分类id和编码
+      //editPartForm.data.businessCode = val.businessCode;
+     // editPartForm.data.extAttrs[0].value = val.id;
+      attributeapi.getNodeAttr(id).then(res => {
+        //console.log('获取分类详细信息', res);
+        if (res.code == 200) {
+          //赋值分类属性
+          for (let datum of res.data) {
+            tempClsAttrs[0].Classification[datum.nameEn] = '';
+          }
+
+          console.log(tempClsAttrs[0])
+
+        } else {
+          ElMessage({ type: 'error', message: res.msg });
+        }
+      })
+    }
+
+    function handleEditPartForm(val){
+      targetId.value = val.id
+      partapi.getPart(val.id).then(res =>{
+        if (res.code == 200) {
+          //editFormGetNodeAttr(res.data.extAttrs[0].value.id);
+          tempClsAttrs[0].Classification = {};
+          editPartForm.data = res.data;
+          if(editPartForm.data.clsAttrs == null){
+            editPartForm.data.clsAttrs = [
+              {
+                'Classification': {
+                }
+              }
+            ];
+          }
+          editPartForm.data.classification = editPartForm.data.extAttrs[0].value.name;
+          editPartForm.data.businessCode = editPartForm.data.extAttrs[0].value.businessCode;
+          //editPartForm.data.extAttrs[0].value = editPartForm.data.extAttrs[0].value.id;
+          editFormGetNodeAttr(editPartForm.data.extAttrs[0].value.id);
+          editPartForm.data.defaultUnit = 'PCS';
+          editDialog.value = true;
+          console.log(editPartForm.data)
+        } else {
+          ElMessage({ type: 'error', message: res.msg });
+        }
+      })
+    }
+
+
 
 
 
@@ -873,7 +928,11 @@ export default {
       getDataCustom,
       handleSelectionChange,
       tableData,
-      DataTable
+      DataTable,
+      handleEditClick,
+      tempClsAttrs,
+      editFormGetNodeAttr,
+      handleEditPartForm,
     }
   },
   mounted() {
