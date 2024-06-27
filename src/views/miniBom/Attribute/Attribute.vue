@@ -581,7 +581,8 @@ export default {
                 ElMessage({ type: 'success', message: '创建成功' });
                 addDialog.value = false;
                 //刷新页面重载数据
-                location.reload();
+                //location.reload();
+                pageQueryAttribute()
               } else {
                 ElMessage({ type: 'error', message: res.msg });
               }
@@ -826,9 +827,10 @@ export default {
           if (res.code == 200) {
             //创建成功后清空表单
             ElMessage({ type: 'success', message: '创建成功' });
-            addDialog.value = false;
+            addClassDialog.value = false;
             //刷新页面重载数据
-            location.reload();
+            //location.reload();
+            pageQueryClass();
           } else {
             ElMessage({ type: 'error', message: res.msg });
           }

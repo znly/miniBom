@@ -20,13 +20,12 @@ export default {
   },
 
   //删除部件
-  deletePart(masterId, modifier) {
+  deletePart(masterId) {
     return request({
       url: "/idme/part/delete",
       method: "post",
       data: {
-        masterId,
-        modifier,
+        masterId
       },
     });
   },

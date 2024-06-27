@@ -243,12 +243,12 @@
                 </el-select>
               </el-form-item>
               <el-form-item label="来源" prop="source">
-                <el-select v-model="editPartForm.source" placeholder="请选择来源" style="width: 240px">
+                <el-select v-model="editPartForm.data.source" placeholder="请选择来源" style="width: 240px">
                   <el-option v-for="(item, key) in sourceOptions" :key="key" :label="item" :value="item" />
                 </el-select>
               </el-form-item>
               <el-form-item label="装配模式" prop="partType">
-                <el-select v-model="editPartForm.partType" placeholder="请选择装配模式" style="width: 240px">
+                <el-select v-model="editPartForm.data.partType" placeholder="请选择装配模式" style="width: 240px">
                   <el-option v-for="(item, key) in patternOptions" :key="key" :label="item" :value="item" />
                 </el-select>
               </el-form-item>
@@ -538,31 +538,30 @@ export default {
     //添加部件方法
     const addPart = () => {
       console.log(partForm);
-      表单校验
-      partFormRef.value.validate((valid) => {
-        if (valid) {
-          //调用api创建
-          partapi.create(partForm.source, partForm.branch, partForm.master, partForm.name,
-            partForm.partType, partForm.extAttrs, partForm.clsAttrs).then(res => {
-              console.log(res);
-              if (res.code == 200) {
-                ElMessage({ type: 'success', message: '创建成功' });
-                //直接重载页面
-                getPartList();
-                addDialog.value = false;
+      // partFormRef.value.validate((valid) => {
+      //   if (valid) {
+      //调用api创建
+      partapi.create(partForm.source, partForm.branch, partForm.master, partForm.name,
+        partForm.partType, partForm.extAttrs, partForm.clsAttrs).then(res => {
+          console.log(res);
+          if (res.code == 200) {
+            ElMessage({ type: 'success', message: '创建成功' });
+            //直接重载页面
+            getPartList();
+            addDialog.value = false;
 
-                // addDialog.value=false
-                // getPartList()
-              } else {
-                ElMessage({ type: 'error', message: res.msg });
-              }
-            })
-        } else {
-          ElMessage({ type: 'warning', message: '请按规定填写必要字段' });
-        }
-      })
-
+            // addDialog.value=false
+            // getPartList()
+          } else {
+            ElMessage({ type: 'error', message: res.msg });
+          }
+        })
+      // } else {
+      //   ElMessage({ type: 'warning', message: '请按规定填写必要字段' });
+      // }
     }
+
+
 
     //获取分类
     function getType() {
@@ -650,7 +649,7 @@ export default {
     function editPart() {
       console.log('编辑部件信息', editPartForm.data);
       partapi.updatePart2(editPartForm.data.name, editPartForm.data.master, editPartForm.data.branch,
-        editPartForm.source, editPartForm.partType, editPartForm.data.extAttrs, editPartForm.data.clsAttrs).then(res => {
+        editPartForm.data.source, editPartForm.data.partType, editPartForm.data.extAttrs, editPartForm.data.clsAttrs).then(res => {
           console.log('编辑部件返回结果', res);
           if (res.code == 200) {
             ElMessage({ type: 'success', message: '修改成功' });
@@ -718,20 +717,18 @@ export default {
         return;
       }
 
-      if (store.state.user == null) {
-        ElMessage({ type: 'error', message: '请先登录' });
-        return;
-      }
-      val = multipleSelection.value.map(item => item.id).join(',')
+      // if (store.state.user == null) {
+      //   ElMessage({ type: 'error', message: '请先登录' });
+      //   return;
+      // }
+      // val = multipleSelection.value.map(item => item.id).join(',')
       //修改人获取当前用户的id
-      partapi.deletePart(val, store.state.user.id).then(res => {
+      partapi.deletePart(multipleSelection.value[0].master.id).then(res => {
         console.log('删除部件part', res);
         if (res.code == 200) {
           ElMessage({ type: 'success', message: '删除成功' })
+          getPartList();
           //刷新页面
-          setTimeout(() => {
-            location.reload();
-          }, 500);
         } else {
           ElMessage({ type: 'error', message: res.msg });
         }
