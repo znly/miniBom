@@ -49,8 +49,7 @@ export default {
       url: "/api/BOM/createTree",
       method: "post",
       data: {
-        id: id,
-        // modifier: "",
+        id
       },
     });
   },
